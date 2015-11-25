@@ -13,7 +13,7 @@ ServiceController = function ServiceController() {
         if (!!plugins[pluginName]) {
             throw 'plugin ' + pluginName + ' is already defined';
         }
-        _plugins[pluginName] = plugin
+        _plugins[pluginName] = plugin;
         _pluginChainCache = {};
     };
     _removePlugin = function _removePlugin(pluginName) { // plugin has to have 4 args chain,service,body, header
@@ -27,12 +27,12 @@ ServiceController = function ServiceController() {
 
     _buildPluginChainCached = function _buildPluginChainCached(service, fn) {
         var functionName, result;
-        functionName = fn.toString().split(')')
+        functionName = fn.toString().split(')');
         _pluginChainCache[service.name] = _pluginChainCache[service.name] || {};
         result = _pluginChainCache[service.name][functionName] || _buildPluginChain(fn, service);
         _pluginChainCache[service.name][functionName] = result;
         return result;
-    }
+    };
 
     _buildPluginChain = function _buildPluginChain(fn) {
         var previous, currentFn;
@@ -42,8 +42,8 @@ ServiceController = function ServiceController() {
         });
         currentFn = previous;
         return {
-            process: function (service) {
-                return currentFn.apply(service, arguments);
+            process: function (service,args) {
+                return currentFn.apply(service, args);
             }
         };
     };
@@ -81,8 +81,6 @@ ServiceController = function ServiceController() {
                 _this._deepFreeze(prop);
         });
 
-        // Freeze self
-        console.log('FREEEZING '+JSON.stringify(obj));
         return Object.freeze(obj);
     };
     _addService = function _addService(service) {

@@ -90,10 +90,7 @@ describe("MicroGears ", function () {
             name: 'testService', path: "path",
             testFunction1: function (arg1, arg2) {
                 'use strict';
-                console.log('ARG:'+JSON.stringify(arg1));
                 arg1.name = 'dddd';
-                //Object.freeze(arg1);
-                //arg1.name='ddd';
                 return true;
             },
             testFunction2: function (arg1, arg2) {
@@ -101,7 +98,8 @@ describe("MicroGears ", function () {
             },
 
         });
-        expect(MicroGears.testService.testFunction1({name:'a'},{})  instanceof Promise).not.toBe(undefined);
+      MicroGears.testService.testFunction1({name:'a'},{}).catch(function(error){console.log('ERROR!!!')})
+       // expect(MicroGears.testService.testFunction1({name:'a'},{})).toThrow();
     });
 });
 
