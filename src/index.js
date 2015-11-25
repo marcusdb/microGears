@@ -25,7 +25,7 @@ ServiceController = function ServiceController() {
         _pluginChainCache = {};
     };
 
-    _buildPluginChainCached = function _buildPluginChainCached(service,fn) {
+    _buildPluginChainCached = function _buildPluginChainCached(service, fn) {
         var functionName, result;
         functionName = fn.toString().split(')')
         _pluginChainCache[service.name] = _pluginChainCache[service.name] || {};
@@ -54,11 +54,10 @@ ServiceController = function ServiceController() {
 
     _createPromisifyProxy = function _createPromisifyProxy(obj, key) {
         if (typeof obj[key] === 'function') {
-            console.log('_createPromisifyProxy:' + key);
             var func = obj[key];
             obj[key] = function () {
-                console.log('function ' + key + ' called');
-                var args = Array.prototype.slice.call(arguments).map(R.clone);
+                //var args = Array.prototype.slice.call(arguments).map(R.clone);
+                var args = Array.prototype.slice.call(arguments).map(_deepFreeze);
                 //return Promise.resolve(func.apply(obj, args));
                 return Promise.resolve(_buildPluginChainCached(obj, func).process(obj, args));
             };
@@ -67,6 +66,7 @@ ServiceController = function ServiceController() {
     };
 
     _deepFreeze = function _deepFreeze(obj) {
+        if (typeof obj !== 'object') return obj;
         var _this = this;
 
         // Retrieve the property names defined on obj
@@ -82,10 +82,10 @@ ServiceController = function ServiceController() {
         });
 
         // Freeze self
+        console.log('FREEEZING '+JSON.stringify(obj));
         return Object.freeze(obj);
     };
     _addService = function _addService(service) {
-        console.log('add service' + service.toString());
         _validadeService(service);
 
         Object.keys(service).forEach(R.curry(_createPromisifyProxy)(service));
@@ -103,30 +103,4 @@ ServiceController = function ServiceController() {
 }();
 
 
-ServiceController.addService({
-    name: 'userPersistence', path: __dirname,
-    saveData: function (obj) {
-        obj.bla = 666;
-        console.log('saveData Called');
-        console.log('path:' + this.path);
-        return 'RESULT:' + JSON.stringify(obj);
-    },
-    getData: function (obj) {
-        obj.bla = 666;
-        console.log('path:' + this.path);
-        return JSON.stringify(obj);
-    }
-
-});
-
-
-var obj = {bla: 1, ble: 2};
-var promise = ServiceController.userPersistence.saveData(obj)
-console.log('promise:' + ServiceController.userPersistence.saveData);
-console.log('promiseJSON:' + JSON.stringify(promise));
-obj.bla = 1000;
-promise.then(console.log);
-console.log('initial Obj:' + JSON.stringify(obj));
-setTimeout(function () {
-    console.log('initial Obj with delay:' + JSON.stringify(obj));
-}, 10);
+module.exports = ServiceController;

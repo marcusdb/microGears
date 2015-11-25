@@ -1,15 +1,19 @@
 {
   "name": "microGears",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "grunt jasmine"
   },
   "author": "Marcus David Bronstein",
   "license": "ISC",
   "dependencies": {
-    "bluebird": "^3.0.5",
-    "ramda": "^0.18.0"
+    "bluebird": "3.0.5",
+    "ramda": "0.18.0"
+  },
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-jasmine-node": "^0.3.1"
   }
 }
