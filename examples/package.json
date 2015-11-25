@@ -1,0 +1,18 @@
+{
+  "name": "microGears",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Marcus David Bronstein",
+  "license": "ISC",
+  "dependencies": {
+    "bluebird": "^3.0.5",
+    "monet": "^0.8.6",
+    "mongoose": "^4.2.7",
+    "ramda": "^0.18.0",
+    "ramda-fantasy": "^0.4.1"
+  }
+}
