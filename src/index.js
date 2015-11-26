@@ -34,11 +34,13 @@ ServiceController = function ServiceController() {
         return result;
     };
 
-    _buildPluginChain = function _buildPluginChain(fn) {
+    _buildPluginChain = function _buildPluginChain(fn,service) {
         var previous, currentFn;
-        previous = fn;
+        previous = function(){// removing chain & service arguments for the service function call
+            return fn.apply(this, Array.prototype.slice.call(arguments).slice(2));
+        };
         Object.keys(_plugins).forEach(function (a) {
-            previous = R.curry(_plugins[a])(previous);
+            previous = R.curry(_plugins[a])(previous)(service);
         });
         currentFn = previous;
         return {

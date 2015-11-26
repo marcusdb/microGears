@@ -121,6 +121,29 @@ describe("MicroGears ", function () {
         MicroGears.testService.testFunction1({name:'a'},{}).then(thenTest).catch(catchTest).finally(done);
        
     });
+
+    it("should allow plugins to be added ", function (done) {
+        MicroGears.addService({
+            name: 'testService', path: "path",
+            testFunction1: function (arg1, arg2) {
+                return true;
+            },
+            testFunction2: function (arg1, arg2) {
+                return arg1 + arg2;
+            },
+
+        });
+        var plugin=function(chain,service,arg1,arg2){
+
+            chain(service,arg1,arg2);
+        }
+        MicroGears.addPlugin()
+        var thenTest=function(arg){ expect(arg).not.toBe(undefined)};
+        var catchTest=function(arg){ expect(arg).toBe(undefined)};
+        MicroGears.testService.testFunction1({name:'a'},{}).then(thenTest).catch(catchTest).finally(done);
+
+    });
+
 });
 
 
