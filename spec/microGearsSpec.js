@@ -59,7 +59,7 @@ describe("MicroGears ", function () {
         expect(MicroGears.testService.testFunction1).not.toBe(undefined);
         expect(typeof MicroGears.testService.testFunction1).toBe('function');
     });
-    it("should be able to call a method in the new service", function () {
+    it("should be able to call a method in the new service !", function () {
         MicroGears.addService({
             name: 'testService', path: "path",
             testFunction1: function (arg1, arg2) {
@@ -85,12 +85,12 @@ describe("MicroGears ", function () {
         });
         expect(MicroGears.testService.testFunction1('a', 'b')  instanceof Promise).not.toBe(undefined);
     });
-    it("should assure parameters are immutable", function () {
+    it("should assure parameters are immutable", function (done) {
         MicroGears.addService({
             name: 'testService', path: "path",
             testFunction1: function (arg1, arg2) {
-                'use strict';
-                arg1.name = 'dddd';
+               'use strict';
+                arg1.name = 'dddd'; 
                 return true;
             },
             testFunction2: function (arg1, arg2) {
@@ -98,8 +98,28 @@ describe("MicroGears ", function () {
             },
 
         });
-      MicroGears.testService.testFunction1({name:'a'},{}).catch(function(error){console.log('ERROR!!!')})
-       // expect(MicroGears.testService.testFunction1({name:'a'},{})).toThrow();
+        var thenTest=function(arg){ expect(arg).toBe(undefined)};
+        var catchTest=function(arg){ expect(arg).not.toBe(undefined)};
+        MicroGears.testService.testFunction1({name:'a'},{}).then(thenTest).catch(catchTest).finally(done);
+       
+    });
+    it("should assure parameters are immutable if 'use strict' is used", function (done) {
+        MicroGears.addService({
+            name: 'testService', path: "path",
+            testFunction1: function (arg1, arg2) {
+               
+                arg1.name = 'dddd'; 
+                return true;
+            },
+            testFunction2: function (arg1, arg2) {
+                return arg1 + arg2;
+            },
+
+        });
+        var thenTest=function(arg){ expect(arg).not.toBe(undefined)};
+        var catchTest=function(arg){ expect(arg).toBe(undefined)};
+        MicroGears.testService.testFunction1({name:'a'},{}).then(thenTest).catch(catchTest).finally(done);
+       
     });
 });
 

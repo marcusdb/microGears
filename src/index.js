@@ -59,7 +59,7 @@ ServiceController = function ServiceController() {
                 //var args = Array.prototype.slice.call(arguments).map(R.clone);
                 var args = Array.prototype.slice.call(arguments).map(_deepFreeze);
                 //return Promise.resolve(func.apply(obj, args));
-                return Promise.resolve(_buildPluginChainCached(obj, func).process(obj, args));
+                return Promise.method(_buildPluginChainCached(obj, func).process)(obj,args);
             };
         }
 
