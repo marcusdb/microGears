@@ -4,11 +4,14 @@ var R = require('ramda');
 var ServiceController;
 
 ServiceController = function ServiceController() {
-    var _addService, _validadeService, _buildPluginChain, _createPromisifyProxy, _addPlugin, _removePlugin, _deepFreeze, _servicePubFunctions = {}, _plugins = {}, _pluginChainCache = {}, _buildPluginChainCached;
+    var _resetMicroGears, _addService, _validadeService, _buildPluginChain, _createPromisifyProxy, _addPlugin, _removePlugin, _deepFreeze, _servicePubFunctions = {}, _plugins = {}, _pluginChainCache = {}, _buildPluginChainCached, _services;
 
     _addPlugin = function _addPlugin(plugin, pluginName) { // plugin has to have 4 args chain,service,body, header
         if (typeof plugin !== 'function') {
             throw 'plugin must be a function';
+        }
+        if(!pluginName){
+            throw 'plugin name is mandatory';
         }
         if (!!_plugins[pluginName]) {
             throw 'plugin ' + pluginName + ' is already defined';
@@ -16,9 +19,9 @@ ServiceController = function ServiceController() {
         _plugins[pluginName] = plugin;
         _pluginChainCache = {};
     };
-    _removePlugin = function _removePlugin(pluginName) { // plugin has to have 4 args chain,service,body, header
 
-        if (!plugins[pluginName]) {
+    _removePlugin = function _removePlugin(pluginName) { // plugin has to have 4 args chain,service,body, header
+        if (!_plugins[pluginName]) {
             throw 'plugin ' + pluginName + ' does not exist';
         }
         delete _plugins[pluginName];
@@ -29,22 +32,22 @@ ServiceController = function ServiceController() {
         var functionName, result;
         functionName = fn.toString().split(')');
         _pluginChainCache[service.name] = _pluginChainCache[service.name] || {};
-        result = _pluginChainCache[service.name][functionName] || _buildPluginChain(fn, service);
+        result = _pluginChainCache[service.name][functionName] || _buildPluginChain(service,fn);
         _pluginChainCache[service.name][functionName] = result;
         return result;
     };
 
-    _buildPluginChain = function _buildPluginChain(fn,service) {
+    _buildPluginChain = function _buildPluginChain(service,fn) {
         var previous, currentFn;
-        previous = function(){// removing chain & service arguments for the service function call
-            return fn.apply(this, Array.prototype.slice.call(arguments).slice(2));
+        previous = function () {// removing chain & service arguments for the service function call
+            return fn.apply(service, Array.prototype.slice.call(arguments).slice(2));
         };
         Object.keys(_plugins).forEach(function (a) {
-            previous = R.curry(_plugins[a])(previous)(service);
+            previous = R.curry(_plugins[a].bind(service))(previous);
         });
         currentFn = previous;
         return {
-            process: function (service,args) {
+            process: function (service, args) {
                 return currentFn.apply(service, args);
             }
         };
@@ -58,10 +61,8 @@ ServiceController = function ServiceController() {
         if (typeof obj[key] === 'function') {
             var func = obj[key];
             obj[key] = function () {
-                //var args = Array.prototype.slice.call(arguments).map(R.clone);
                 var args = Array.prototype.slice.call(arguments).map(_deepFreeze);
-                //return Promise.resolve(func.apply(obj, args));
-                return Promise.method(_buildPluginChainCached(obj, func).process)(obj,args);
+                return Promise.method(_buildPluginChainCached(obj, func).process)(obj, args);
             };
         }
 
@@ -87,15 +88,28 @@ ServiceController = function ServiceController() {
     };
     _addService = function _addService(service) {
         _validadeService(service);
-
+        _services = _services || [];
+        _services.push(service.name);
         Object.keys(service).forEach(R.curry(_createPromisifyProxy)(service));
 
         _servicePubFunctions[service.name] = service;
     };
 
+    _resetMicroGears = function () {
+        var _this=this;
+        _services = _services || [];
+        _services.forEach(function (serviceName) {
+            delete _this[serviceName];
+        });
+        _services = [];
+        _pluginChainCache = {};
+        _plugins={};
+    };
+
     _servicePubFunctions.addService = _addService;
     _servicePubFunctions.addPlugin = _addPlugin;
     _servicePubFunctions.removePlugin = _removePlugin;
+    _servicePubFunctions.resetMicroGears = _resetMicroGears;
 
 
     return _servicePubFunctions;
