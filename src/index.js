@@ -10,7 +10,7 @@ ServiceController = function ServiceController() {
         if (typeof plugin !== 'function') {
             throw 'plugin must be a function';
         }
-        if (!!plugins[pluginName]) {
+        if (!!_plugins[pluginName]) {
             throw 'plugin ' + pluginName + ' is already defined';
         }
         _plugins[pluginName] = plugin;

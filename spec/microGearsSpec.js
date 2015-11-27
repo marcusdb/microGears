@@ -1,5 +1,6 @@
 var MicroGears = require('../src/index');
 var Promise = require('bluebird');
+var sinon = require('sinon');
 
 //MicroGears.addService({
 //    name: 'userPersistence', path: __dirname,
@@ -83,14 +84,14 @@ describe("MicroGears ", function () {
             },
 
         });
-        expect(MicroGears.testService.testFunction1('a', 'b')  instanceof Promise).not.toBe(undefined);
+        expect(MicroGears.testService.testFunction1('a', 'b') instanceof Promise).not.toBe(undefined);
     });
     it("should assure parameters are immutable", function (done) {
         MicroGears.addService({
             name: 'testService', path: "path",
             testFunction1: function (arg1, arg2) {
-               'use strict';
-                arg1.name = 'dddd'; 
+                'use strict';
+                arg1.name = 'dddd';
                 return true;
             },
             testFunction2: function (arg1, arg2) {
@@ -98,29 +99,12 @@ describe("MicroGears ", function () {
             },
 
         });
-        var thenTest=function(arg){ expect(arg).toBe(undefined)};
-        var catchTest=function(arg){ expect(arg).not.toBe(undefined)};
-        MicroGears.testService.testFunction1({name:'a'},{}).then(thenTest).catch(catchTest).finally(done);
-       
-    });
-    it("should assure parameters are immutable if 'use strict' is used", function (done) {
-        MicroGears.addService({
-            name: 'testService', path: "path",
-            testFunction1: function (arg1, arg2) {
-               
-                arg1.name = 'dddd'; 
-                return true;
-            },
-            testFunction2: function (arg1, arg2) {
-                return arg1 + arg2;
-            },
+        var thenTest = function (arg) { expect(arg).toBe(undefined) };
+        var catchTest = function (arg) { expect(arg).not.toBe(undefined) };
+        MicroGears.testService.testFunction1({ name: 'a' }, {}).then(thenTest).catch(catchTest).finally(done);
 
-        });
-        var thenTest=function(arg){ expect(arg).not.toBe(undefined)};
-        var catchTest=function(arg){ expect(arg).toBe(undefined)};
-        MicroGears.testService.testFunction1({name:'a'},{}).then(thenTest).catch(catchTest).finally(done);
-       
     });
+
 
     it("should allow plugins to be added ", function (done) {
         MicroGears.addService({
@@ -133,16 +117,80 @@ describe("MicroGears ", function () {
             },
 
         });
-        var plugin=function(chain,service,arg1,arg2){
-
-            chain(service,arg1,arg2);
+        var plugin = function (chain, service, arg1, arg2) {
+            return chain(arg1, arg2);
         }
-        MicroGears.addPlugin()
-        var thenTest=function(arg){ expect(arg).not.toBe(undefined)};
-        var catchTest=function(arg){ expect(arg).toBe(undefined)};
-        MicroGears.testService.testFunction1({name:'a'},{}).then(thenTest).catch(catchTest).finally(done);
+        MicroGears.addPlugin(plugin,'testPlugin')
+        var thenTest = function (arg) { expect(arg).not.toBe(undefined) };
+        var catchTest = function (arg) { expect(arg).toBe(undefined) };
+        MicroGears.testService.testFunction1({ name: 'a' }, {}).then(thenTest).catch(catchTest).finally(done);
 
     });
+
+    it("should assure plugins are going to be called on service function call ", function (done) {
+        var service = {
+            name: 'testService', path: "path",
+            testFunction1: function (arg1, arg2) {
+                return true;
+            },
+            testFunction2: function (arg1, arg2) {
+                return arg1 + arg2;
+            },
+
+        };
+        
+        
+
+        MicroGears.addService(service);
+        var plugin =sinon.spy( function (chain, service, arg1, arg2) {
+            return chain(arg1, arg2);
+        })
+        MicroGears.addPlugin(plugin,'spy plugin');
+        var thenTest = function (arg) {
+            
+            expect(plugin.calledOnce).toBe(true);
+            exports(plugin.callCount).toBe(1);
+        };
+        var catchTest = function (arg) {
+            
+            expect(arg).toBe(undefined)
+        };
+        MicroGears.testService.testFunction1({ name: 'a' }, {}).then(thenTest).catch(catchTest).finally(done);
+
+    });
+    
+    it("should assure that service function call is chainable through plugins ", function (done) {
+        var service = {
+            name: 'testService', path: "path",
+            testFunction1: function (arg1, arg2) {
+                return true;
+            },
+            testFunction2: function (arg1, arg2) {
+                return arg1 + arg2;
+            },
+
+        };
+        var spy=sinon.spy(service.testFunction1);
+        service.testFunction1=spy;
+
+        MicroGears.addService(service);
+        var plugin = function (chain, service, arg1, arg2) {
+            return chain(arg1, arg2);
+        }
+       // MicroGears.addPlugin(plugin) PLUGIN WAS ADDED previously
+        var thenTest = function (arg) {
+            
+            expect(spy.calledOnce).toBe(true);
+            exports(spy.callCount).toBe(1);
+        };
+        var catchTest = function (arg) {
+            
+            expect(arg).toBe(undefined)
+        };
+        MicroGears.testService.testFunction1({ name: 'a' }, {}).then(thenTest).catch(catchTest).finally(done);
+
+    });
+
 
 });
 
