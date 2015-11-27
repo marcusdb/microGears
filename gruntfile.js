@@ -44,3 +44,5 @@ grunt.loadNpmTasks('grunt-contrib-jshint');
 
 // Default task.
 grunt.registerTask('default', ['jshint:all','jasmine_node']);
+
+grunt.registerTask('test', ['jshint:all','jasmine_node']);

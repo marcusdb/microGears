@@ -1,13 +1,17 @@
 {
   "name": "microGears",
   "version": "0.1.0",
-  "description": "",
+  "description": "super lightweight micro framework for reactive services",
   "main": "index.js",
   "scripts": {
-    "test": "grunt jasmine"
+    "test": "grunt test"
   },
   "author": "Marcus David Bronstein",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/marcusdb/microGears.git"
+  },
   "dependencies": {
     "bluebird": "3.0.5",
     "ramda": "0.18.0"
