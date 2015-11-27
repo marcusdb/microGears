@@ -6,17 +6,17 @@ var ServiceController;
 ServiceController = function ServiceController() {
     var _resetMicroGears, _addService, _validadeService, _buildPluginChain, _createPromisifyProxy, _addPlugin, _removePlugin, _deepFreeze, _servicePubFunctions = {}, _plugins = {}, _pluginChainCache = {}, _buildPluginChainCached, _services;
 
-    _addPlugin = function _addPlugin(plugin, pluginName) { // plugin has to have 4 args chain,service,body, header
-        if (typeof plugin !== 'function') {
+    _addPlugin = function _addPlugin(plugin) { // plugin has to have 4 args chain,service,body, header
+        if (typeof plugin.filter !== 'function') {
             throw 'plugin must be a function';
         }
-        if(!pluginName){
+        if(!plugin.name){
             throw 'plugin name is mandatory';
         }
-        if (!!_plugins[pluginName]) {
-            throw 'plugin ' + pluginName + ' is already defined';
+        if (!!_plugins[plugin.name]) {
+            throw 'plugin ' + plugin.name + ' is already defined';
         }
-        _plugins[pluginName] = plugin;
+        _plugins[plugin.name] = plugin.filter;
         _pluginChainCache = {};
     };
 
@@ -62,7 +62,11 @@ ServiceController = function ServiceController() {
             var func = obj[key];
             obj[key] = function () {
                 var args = Array.prototype.slice.call(arguments).map(_deepFreeze);
-                return Promise.method(_buildPluginChainCached(obj, func).process)(obj, args);
+                var meta={
+                    serviceName:obj.name,
+                    methodName:key
+                };
+                return Promise.method(_buildPluginChainCached(meta, func).process)(meta, args);
             };
         }
 
