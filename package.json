@@ -1,5 +1,5 @@
 {
-  "name": "microGears",
+  "name": "microgears",
   "version": "1.0.0",
   "description": "super lightweight micro framework for reactive services",
   "main": "index.js",
