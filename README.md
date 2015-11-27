@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/marcusdb/microGears.svg?branch=master)](https://travis-ci.org/marcusdb/microGears)
+
 # MicroGears
 MicroGears a super lightweight micro framework for reactive services
 
