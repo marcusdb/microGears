@@ -126,15 +126,18 @@ describe("MicroGears ", function () {
             },
 
         });
-        var plugin = function (chain, service, arg1, arg2) {
-            return chain(arg1, arg2);
-        }
-        MicroGears.addPlugin(plugin, 'testPlugin')
+        var plugin1 = {
+            name: 'testPlugin',
+            filter: function filter (chain, arg1, arg2) {
+                return chain(arg1, arg2);
+            }
+        };
+        MicroGears.addPlugin(plugin1);
         var thenTest = function (arg) {
-            expect(arg).not.toBe(undefined)
+            expect(arg).not.toBe(undefined);
         };
         var catchTest = function (arg) {
-            expect(arg).toBe(undefined)
+            expect(arg).toBe(undefined);
         };
         MicroGears.testService.testFunction1({name: 'a'}, {}).then(thenTest).catch(catchTest).finally(done);
 
@@ -151,19 +154,22 @@ describe("MicroGears ", function () {
             },
 
         };
-        var plugin = function (chain, arg1, arg2) {
-            var result = chain(arg1, arg2);
-            return result;
+        var plugin1 = {
+            name: 'testPlugin',
+            filter: function filter (chain, arg1, arg2) {
+                return chain(arg1, arg2);
+            }
         };
-        plugin = sinon.spy(plugin);
+        var spy=sinon.spy(plugin1.filter);
+        plugin1.filter = spy
 
         MicroGears.addService(service);
 
-        MicroGears.addPlugin(plugin, 'spy plugin');
+        MicroGears.addPlugin(plugin1);
 
         var thenTest = function (arg) {
-            expect(plugin.calledOnce).toBe(true);
-            expect(plugin.callCount).toBe(1);
+            expect(spy.calledOnce).toBe(true);
+            expect(spy.callCount).toBe(1);
         };
         var catchTest = function (arg) {
             expect(arg).toBe(undefined)
@@ -183,11 +189,13 @@ describe("MicroGears ", function () {
             },
         };
 
-        var plugin = function (chain, arg1, arg2) {
-            var result = chain(arg1, arg2);
-            return result;
+        var plugin1 = {
+            name: 'testPlugin',
+            filter: function filter (chain, arg1, arg2) {
+                return chain(arg1, arg2);
+            }
         };
-        MicroGears.addPlugin(plugin, 'test plugin');
+        MicroGears.addPlugin(plugin1);
         var spy = sinon.spy(service.testFunction1);
         service.testFunction1 = spy;
 
@@ -219,15 +227,26 @@ describe("MicroGears ", function () {
             },
         };
 
-        var plugin1 = function (chain, arg1, arg2) {
-
-            var result = chain(arg1, arg2);
-
-            return result;
+        var plugin1 = {
+            name: 'testPlugin',
+            filter: function filter (chain, arg1, arg2) {
+                return chain(arg1, arg2);
+            }
         };
-        plugin1 = sinon.spy(plugin1);
-        MicroGears.addPlugin(plugin1, 'test plugin');
-        MicroGears.addPlugin(plugin1, 'test plugin2');
+        var plugin2 = {
+            name: 'testPlugin2',
+            filter: function filter (chain, arg1, arg2) {
+                return chain(arg1, arg2);
+            }
+        };
+        var spy=sinon.spy(plugin1.filter);
+        var spy2=sinon.spy(plugin2.filter);
+
+
+        plugin1.filter = spy;
+        plugin2.filter = spy2;
+        MicroGears.addPlugin(plugin1);
+        MicroGears.addPlugin(plugin2);
         var spy = sinon.spy(service.testFunction1);
         service.testFunction1 = spy;
 
@@ -238,8 +257,10 @@ describe("MicroGears ", function () {
         // MicroGears.addPlugin(plugin) PLUGIN WAS ADDED previously
         var thenTest = function (arg) {
 
-            expect(plugin1.calledTwice).toBe(true);
-            expect(plugin1.callCount).toBe(2);
+            expect(spy.calledOnce).toBe(true);
+            expect(spy.callCount).toBe(1);
+            expect(spy2.calledOnce).toBe(true);
+            expect(spy2.callCount).toBe(1);
         };
         var catchTest = function (arg) {
 
@@ -252,7 +273,7 @@ describe("MicroGears ", function () {
         var service = {
             name: 'testService', path: "path",
             testFunction1: function (arg1, arg2) {
-                expect(this.name).toBe('testService');
+                expect(this.serviceName).toBe('testService');
                 return true;
             },
             testFunction2: function (arg1, arg2) {
@@ -260,23 +281,21 @@ describe("MicroGears ", function () {
             },
         };
 
-        var plugin1 = function (chain, arg1, arg2) {
-            var result;
-            expect(this.name).toBe('testService');
-             result= chain(arg1, arg2);
-
-            return result;
+        var plugin1 = {
+            name: 'testPlugin',
+            filter: function filter (chain, arg1, arg2) {
+                return chain(arg1, arg2);
+            }
         };
-        var plugin2 = function (chain, arg1, arg2) {
-            var result;
-            expect(this.name).toBe('testService');
-            result= chain(arg1, arg2);
-
-            return result;
+        var plugin2 = {
+            name: 'testPlugin2',
+            filter: function filter (chain, arg1, arg2) {
+                return chain(arg1, arg2);
+            }
         };
 
-        MicroGears.addPlugin(plugin2, 'test plugin');
-        MicroGears.addPlugin(plugin1, 'test plugin2');
+        MicroGears.addPlugin(plugin2);
+        MicroGears.addPlugin(plugin1);
 
 
 
