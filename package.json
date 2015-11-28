@@ -1,6 +1,6 @@
 {
   "name": "microgears",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "super lightweight micro framework for reactive services",
   "main": "index.js",
   "scripts": {
