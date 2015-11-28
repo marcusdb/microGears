@@ -4,6 +4,7 @@
 [![devDependency Status](https://david-dm.org/marcusdb/microGears/dev-status.svg)](https://david-dm.org/marcusdb/microGears#info=devDependencies)
 [![Issue Stats](http://issuestats.com/github/marcusdb/microGears/badge/issue?style=flat)](http://issuestats.com/github/marcusdb/microGears)
 [![Issue Stats](http://issuestats.com/github/marcusdb/microGears/badge/pr?style=flat)](http://issuestats.com/github/marcusdb/microGears)
+[![Code Climate](https://codeclimate.com/github/marcusdb/microGears/badges/gpa.svg)](https://codeclimate.com/github/marcusdb/microGears)
 
 
 # MicroGears
