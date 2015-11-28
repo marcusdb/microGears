@@ -2,8 +2,33 @@ var grunt = require("grunt");
 
 
 grunt.initConfig({
+    env: {
+        coverage: {
+            APP_DIR_FOR_CODE_COVERAGE: '../test/coverage/instrument/app/'
+        }
+    },
+    instrument: {
+        files: 'app/*.js',
+        options: {
+            lazy: true,
+            basePath: 'test/coverage/instrument/'
+        }
+    },
+    storeCoverage: {
+        options: {
+            dir: 'test/coverage/reports'
+        }
+    },
+    makeReport: {
+        src: 'test/coverage/reports/**/*.json',
+        options: {
+            type: 'lcov',
+            dir: 'test/coverage/reports',
+            print: 'detail'
+        }
+    },
     jshint: {
-        all: ['src/**/*.js', '*.js', 'test/**/*.js'],
+        all: ['src/**/*.js', '*.js', 'spec/**/*.js'],
         options: {
             undef: true,
             node:true,
@@ -24,25 +49,27 @@ grunt.initConfig({
             }
         }
     },
-    jasmine_node: {
-        options: {
-            forceExit: true,
-            matchall: false,
-            extensions: 'js',
-            verbose: true,
-            growl: true
-        },
-        all: []
+    mochaTest: {
+        test: {
+            options: {
+                reporter: 'spec',
+                captureFile: 'results.txt', // Optionally capture the reporter output to a file
+                quiet: false, // Optionally suppress output to standard out (defaults to false)
+                clearRequireCache: false // Optionally clear the require cache before running tests (defaults to false)
+            },
+            src: ['spec/**/*.js']
+        }
     }
 });
 
 // Register tasks.
-
-grunt.loadNpmTasks('grunt-jasmine-node');
-
+grunt.loadNpmTasks('grunt-istanbul');
+grunt.loadNpmTasks('grunt-mocha-test');
 grunt.loadNpmTasks('grunt-contrib-jshint');
 
 // Default task.
-grunt.registerTask('default', ['jshint:all','jasmine_node']);
 
-grunt.registerTask('test', ['jshint:all','jasmine_node']);
+grunt.registerTask('coverage', ['env:coverage', 'instrument', 'mochaTest',
+    'storeCoverage', 'makeReport']);
+
+grunt.registerTask('test', ['jshint:all','mochaTest']);
