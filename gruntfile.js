@@ -27,12 +27,17 @@ grunt.initConfig({
         test: {
             options: {
                 reporter: 'spec',
-                captureFile: 'results.txt', // Optionally capture the reporter output to a file
+                //captureFile: 'results.txt', // Optionally capture the reporter output to a file
                 quiet: false, // Optionally suppress output to standard out (defaults to false)
                 clearRequireCache: false // Optionally clear the require cache before running tests (defaults to false)
             },
             src: ['spec/**/*.js']
         }
+    },
+    mocha_istanbul: {
+        coverage: {
+            src: 'spec'
+        },
     }
 });
 
@@ -40,5 +45,7 @@ grunt.initConfig({
 
 grunt.loadNpmTasks('grunt-mocha-test');
 grunt.loadNpmTasks('grunt-contrib-jshint');
+grunt.loadNpmTasks('grunt-mocha-istanbul');
 
 grunt.registerTask('test', ['jshint:all', 'mochaTest']);
+grunt.registerTask('coverage', ['mocha_istanbul:coverage']);
