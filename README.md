@@ -7,6 +7,8 @@
 [![Issue Stats](http://issuestats.com/github/marcusdb/microGears/badge/issue?style=flat)](http://issuestats.com/github/marcusdb/microGears)
 [![Issue Stats](http://issuestats.com/github/marcusdb/microGears/badge/pr?style=flat)](http://issuestats.com/github/marcusdb/microGears)
 [![Code Climate](https://codeclimate.com/github/marcusdb/microGears/badges/gpa.svg)](https://codeclimate.com/github/marcusdb/microGears)
+[![Test Coverage](https://codeclimate.com/github/marcusdb/microGears/badges/coverage.svg)](https://codeclimate.com/github/marcusdb/microGears/coverage)
+[![Issue Count](https://codeclimate.com/github/marcusdb/microGears/badges/issue_count.svg)](https://codeclimate.com/github/marcusdb/microGears)
 [![awsomeness](https://img.shields.io/badge/usability-awsome-brightgreen.svg)](https://github.com/marcusdb/microGears)
 
 
