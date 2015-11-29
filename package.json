@@ -6,6 +6,7 @@
   "scripts": {
     "test": "grunt test"
   },
+  "main": "./src/index.js",
   "author": "Marcus David Bronstein",
   "license": "ISC",
   "repository": {
