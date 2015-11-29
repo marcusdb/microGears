@@ -47,5 +47,5 @@ grunt.loadNpmTasks('grunt-mocha-test');
 grunt.loadNpmTasks('grunt-contrib-jshint');
 grunt.loadNpmTasks('grunt-mocha-istanbul');
 
-grunt.registerTask('test', ['jshint:all', 'mochaTest']);
+grunt.registerTask('test', ['jshint:all', 'mocha_istanbul:coverage']);
 grunt.registerTask('coverage', ['mocha_istanbul:coverage']);
