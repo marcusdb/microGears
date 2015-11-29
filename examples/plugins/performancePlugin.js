@@ -7,8 +7,8 @@ var performancePlugin = {
         hrstart = process.hrtime();
         start = new Date();
         result = next(args);
-        end = new Date() - start,
-            hrend = process.hrtime(hrstart);
+        end = new Date() - start;
+        hrend = process.hrtime(hrstart);
 
         console.info('Service:' + this.serviceName + ' Method:' + this.methodName + "Execution time: %dms", end);
         console.info('Service:' + this.serviceName + ' Method:' + this.methodName + "Execution time (hr): %ds %dms", hrend[0], hrend[1] / 1000000);

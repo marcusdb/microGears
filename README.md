@@ -13,5 +13,94 @@ MicroGears a super lightweight micro framework for reactive services
 MicroGears was build with 3 main objectives in mind.
 
 * enforce immutability of function parameters
+* enforce all function calls to be promisified
 * enable your service to be filtered in a transparent way (with more then one filter simultaneously)
 * help to administer service dependency in favor of a better and more controlled test environment
+
+
+
+## How to register a service
+
+The **name** and **namespace** are mandatory fields for the service, the reason is that later you are going to be able to appy the plugins to only certain services or namespaces (ie services.company.persistance or routes.company, etc..).
+Needless to say services must be registered before use.
+
+```javascript
+var MicroGears = require('../../src/index');
+
+var userService = {
+    name: 'userService',
+    namespace: "services.userservice",
+    findUserById: function (id) {
+        return {
+            name: 'user',
+            id: id
+        };
+    }
+};
+MicroGears.addService(userService);
+```
+Since MicroGears is goint to transform the service functions into promises you should keep this in mind when using the framework
+
+### Using the registered service
+
+Example
+
+```javascript
+    MicroGears.userService.findUserById(req.params.id).then(function (result) {
+        console.log(result);
+    }).catch(function (error) {
+        console.log(error.stack);
+    });
+```    
+
+## How to register a plugin
+
+The **name** field is mandatory and there must be a **filter** function which the first parameter is going to be pointer for the next plugin in the chain or the service function itself (after the whole plugin stack is called) 
+
+### A trace plugin
+```javascript
+var MicroGears = require('../../src/index');
+
+var tracePlugin = {
+    name: 'tracePlugin',
+    filter: function (next, args) {
+        console.info('NameSpace'+this.serviceNameSpace+' Service:' + this.serviceName + ' Method:' + this.methodName + ' BEFORE');
+        result = next(args);
+        console.info('NameSpace'+this.serviceNameSpace+' Service:' + this.serviceName + ' Method:' + this.methodName + ' BEFORE');
+        return result;
+
+    }
+};
+
+MicroGears.addPlugin(tracePlugin);
+```
+
+### A performance meter plugin (that only measures performance for the *userService* service
+
+```javascript
+var MicroGears = require('../../src/index');
+
+var performancePlugin = {
+    name: 'performancePlugin',
+    filter: function (next, args) {    
+        var result, hrstart, end, hrend, start;
+        if (this.serviceName==='userService'){
+            hrstart = process.hrtime();
+            start = new Date();
+            result = next(args);
+            end = new Date() - start;
+            hrend = process.hrtime(hrstart);
+    
+            console.info('Service:' + this.serviceName + ' Method:' + this.methodName + "Execution time: %dms", end);
+            console.info('Service:' + this.serviceName + ' Method:' + this.methodName + "Execution time (hr): %ds %dms", hrend[0], hrend[1] / 1000000);
+        }else{
+            result = next(args);
+        }
+        
+        return result;
+
+    }
+};
+
+MicroGears.addPlugin(performancePlugin);
+```
