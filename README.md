@@ -60,7 +60,8 @@ Example
 
 ## How to register a plugin
 
-The **name** field is mandatory and there must be a **filter** function which the first parameter is going to be pointer for the next plugin in the chain or the service function itself (after the whole plugin stack is called) 
+The **name** field is mandatory and there must be a **filter** function which the first parameter is going to be pointer for the next plugin in the chain or the service function itself (after the whole plugin stack is called)
+The **filter** function will always have only two parameters: the *next* function and an array of all service function parameters (can be modified or not but should be used as a parameter to the *next* function call). 
 
 ### A trace plugin
 ```javascript

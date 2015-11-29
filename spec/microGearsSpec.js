@@ -138,8 +138,8 @@ describe("MicroGears ", function () {
         };
         var plugin1 = {
             name: 'testPlugin',
-            filter: function filter(chain, arg1, arg2) {
-                return chain(arg1, arg2);
+            filter: function filter(chain, arg1) {
+                return chain(arg1);
             }
         };
         var spy = sinon.spy(plugin1.filter);
@@ -174,8 +174,8 @@ describe("MicroGears ", function () {
 
         var plugin1 = {
             name: 'testPlugin',
-            filter: function filter(chain, arg1, arg2) {
-                return chain(arg1, arg2);
+            filter: function filter(chain, arg1) {
+                return chain(arg1);
             }
         };
         MicroGears.addPlugin(plugin1);
@@ -210,16 +210,16 @@ describe("MicroGears ", function () {
 
         var plugin1 = {
             name: 'testPlugin',
-            filter: function filter(chain, arg1, arg2) {
+            filter: function filter(chain, arg1) {
                 expect(chain).to.be.a('function');
-                return chain(arg1, arg2);
+                return chain(arg1);
             }
         };
         var plugin2 = {
             name: 'testPlugin2',
-            filter: function filter(chain, arg1, arg2) {
+            filter: function filter(chain, arg1) {
                 expect(chain).to.be.a('function');
-                return chain(arg1, arg2);
+                return chain(arg1);
             }
         };
         var spy = sinon.spy(plugin1.filter);
@@ -260,14 +260,14 @@ describe("MicroGears ", function () {
 
         var plugin1 = {
             name: 'testPlugin',
-            filter: function filter(chain, arg1, arg2) {
-                return chain(arg1, arg2);
+            filter: function filter(chain, arg1) {
+                return chain(arg1);
             }
         };
         var plugin2 = {
             name: 'testPlugin2',
-            filter: function filter(chain, arg1, arg2) {
-                return chain(arg1, arg2);
+            filter: function filter(chain, arg1) {
+                return chain(arg1);
             }
         };
 
@@ -318,7 +318,6 @@ describe("MicroGears ", function () {
                 return true;
             },
             testFunction2: function (arg1, arg2, arg3) {
-                console.log(arguments);
                 expect(arg1).to.equal('firstParameter');
                 expect(arg2).to.equal('secondParameter');
                 expect(arg3).to.equal('thirdParameter');
@@ -329,14 +328,14 @@ describe("MicroGears ", function () {
 
         var plugin1 = {
             name: 'testPlugin',
-            filter: function filter(chain, arg1, arg2) {
-                return chain(arg1, arg2);
+            filter: function filter(chain, arg1) {
+                return chain(arg1);
             }
         };
         var plugin2 = {
             name: 'testPlugin2',
-            filter: function filter(chain, arg1, arg2, arg3) {
-                return chain(arg1, arg2, arg3);
+            filter: function filter(chain, arg1) {
+                return chain(arg1);
             }
         };
 
