@@ -67,7 +67,8 @@ ServiceController = function ServiceController() {
                 var args = Array.prototype.slice.call(arguments).map(_deepFreeze);
                 var meta = {
                     serviceName: obj.name,
-                    methodName: key
+                    methodName: key,
+                    serviceNameSpace:obj.namespace
                 };
                 return BlueBirdPromise.method(_buildPluginChainCached(meta, func).process)(meta, args);
             };
@@ -97,6 +98,12 @@ ServiceController = function ServiceController() {
         return Object.freeze(obj);
     };
     _addService = function _addService(service) {
+        if (!service.name) {
+            throw 'service name is mandatory';
+        }
+        if (!service.namespace) {
+            throw 'service namespace is mandatory';
+        }
         _validadeService(service);
         _services = _services || [];
         _services.push(service.name);

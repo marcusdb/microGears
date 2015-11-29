@@ -20,14 +20,14 @@
     </h1>
     <div class='clearfix'>
       <div class='fl pad1y space-right2'>
-        <span class="strong">88% </span>
+        <span class="strong">85.9% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>66/75</span>
+        <span class='fraction'>67/78</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">65.38% </span>
+        <span class="strong">63.33% </span>
         <span class="quiet">Branches</span>
-        <span class='fraction'>17/26</span>
+        <span class='fraction'>19/30</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">93.75% </span>
@@ -35,9 +35,9 @@
         <span class='fraction'>15/16</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">89.04% </span>
+        <span class="strong">85.9% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>65/73</span>
+        <span class='fraction'>67/78</span>
       </div>
     </div>
   </div>
@@ -167,7 +167,19 @@
 122
 123
 124
-125</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">1×</span>
@@ -224,6 +236,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">10×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
@@ -235,6 +249,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">8×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -243,7 +258,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">16×</span>
-<span class="cline-any cline-yes">12×</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">12×</span>
@@ -257,9 +273,17 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">12×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">10×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">10×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">10×</span>
 <span class="cline-any cline-yes">10×</span>
 <span class="cline-any cline-yes">10×</span>
@@ -284,15 +308,14 @@
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">"use strict";
-var Promise = require('bluebird');
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/* globals require*/
+"use strict";
+var BlueBirdPromise = require('bluebird');
 var R = require('ramda');
 var ServiceController;
 &nbsp;
@@ -303,7 +326,7 @@ ServiceController = function ServiceController() {
         <span class="missing-if-branch" title="if path not taken" >I</span>if (typeof plugin.filter !== 'function') {
 <span class="cstat-no" title="statement not covered" >            throw 'plugin must be a function';</span>
         }
-        <span class="missing-if-branch" title="if path not taken" >I</span>if(!plugin.name){
+        <span class="missing-if-branch" title="if path not taken" >I</span>if (!plugin.name) {
 <span class="cstat-no" title="statement not covered" >            throw 'plugin name is mandatory';</span>
         }
         <span class="missing-if-branch" title="if path not taken" >I</span>if (!!_plugins[plugin.name]) {
@@ -325,12 +348,12 @@ ServiceController = function ServiceController() {
         var functionName, result;
         functionName = fn.toString().split(')');
         _pluginChainCache[service.name] = _pluginChainCache[service.name] || {};
-        result = _pluginChainCache[service.name][functionName] || _buildPluginChain(service,fn);
+        result = _pluginChainCache[service.name][functionName] || _buildPluginChain(service, fn);
         _pluginChainCache[service.name][functionName] = result;
         return result;
     };
 &nbsp;
-    _buildPluginChain = function _buildPluginChain(service,fn) {
+    _buildPluginChain = function _buildPluginChain(service, fn) {
         var previous, currentFn;
         previous = function () {// removing chain &amp; service arguments for the service function call
             return fn.apply(service, Array.prototype.slice.call(arguments).slice(2));
@@ -347,7 +370,9 @@ ServiceController = function ServiceController() {
     };
 &nbsp;
     _validadeService = function _validadeService(service) {
-        <span class="missing-if-branch" title="if path not taken" >I</span>if (!R.has('name', service)) <span class="cstat-no" title="statement not covered" >throw 'service must have a name';</span>
+        <span class="missing-if-branch" title="if path not taken" >I</span>if (!R.has('name', service)) {
+<span class="cstat-no" title="statement not covered" >            throw 'service must have a name';</span>
+        }
     };
 &nbsp;
     _createPromisifyProxy = function _createPromisifyProxy(obj, key) {
@@ -355,19 +380,21 @@ ServiceController = function ServiceController() {
             var func = obj[key];
             obj[key] = function () {
                 var args = Array.prototype.slice.call(arguments).map(_deepFreeze);
-                var meta={
-                    serviceName:obj.name,
-                    methodName:key
+                var meta = {
+                    serviceName: obj.name,
+                    methodName: key,
+                    serviceNameSpace:obj.namespace
                 };
-                return Promise.method(_buildPluginChainCached(meta, func).process)(meta, args);
+                return BlueBirdPromise.method(_buildPluginChainCached(meta, func).process)(meta, args);
             };
         }
 &nbsp;
     };
 &nbsp;
     _deepFreeze = function _deepFreeze(obj) {
-        if (typeof obj !== 'object') return obj;
-        var _this = this;
+        if (typeof obj !== 'object') {
+            return obj;
+        }
 &nbsp;
         // Retrieve the property names defined on obj
         var propNames = Object.getOwnPropertyNames(obj);
@@ -377,13 +404,21 @@ ServiceController = function ServiceController() {
             var prop = obj[name];
 &nbsp;
             // Freeze prop if it is an object
-            <span class="missing-if-branch" title="if path not taken" >I</span>if (typeof prop == 'object' &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >!Object.isFrozen(prop))</span>
-<span class="cstat-no" title="statement not covered" >                _this._deepFreeze(prop);</span>
+            <span class="missing-if-branch" title="if path not taken" >I</span>if (typeof prop === 'object' &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >!Object.isFrozen(prop))</span> {
+<span class="cstat-no" title="statement not covered" >                _deepFreeze(prop);</span>
+            }
+&nbsp;
         });
 &nbsp;
         return Object.freeze(obj);
     };
     _addService = function _addService(service) {
+        <span class="missing-if-branch" title="if path not taken" >I</span>if (!service.name) {
+<span class="cstat-no" title="statement not covered" >            throw 'service name is mandatory';</span>
+        }
+        <span class="missing-if-branch" title="if path not taken" >I</span>if (!service.namespace) {
+<span class="cstat-no" title="statement not covered" >            throw 'service namespace is mandatory';</span>
+        }
         _validadeService(service);
         _services = _services || <span class="branch-1 cbranch-no" title="branch not covered" >[];</span>
         _services.push(service.name);
@@ -393,14 +428,14 @@ ServiceController = function ServiceController() {
     };
 &nbsp;
     _resetMicroGears = function () {
-        var _this=this;
+        var _this = this;
         _services = _services || [];
         _services.forEach(function (serviceName) {
             delete _this[serviceName];
         });
         _services = [];
         _pluginChainCache = {};
-        _plugins={};
+        _plugins = {};
     };
 &nbsp;
     _servicePubFunctions.addService = _addService;
@@ -408,11 +443,9 @@ ServiceController = function ServiceController() {
     _servicePubFunctions.removePlugin = _removePlugin;
     _servicePubFunctions.resetMicroGears = _resetMicroGears;
 &nbsp;
-&nbsp;
     return _servicePubFunctions;
 &nbsp;
 }();
-&nbsp;
 &nbsp;
 module.exports = ServiceController;
 &nbsp;</pre></td></tr>
@@ -421,7 +454,7 @@ module.exports = ServiceController;
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Sat Nov 28 2015 18:26:21 GMT-0200 (BRST)
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Sat Nov 28 2015 22:16:46 GMT-0200 (BRST)
 </div>
 </div>
 <script src="../prettify.js"></script>

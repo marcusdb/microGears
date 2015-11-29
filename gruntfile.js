@@ -1,37 +1,11 @@
 var grunt = require("grunt");
 
-
 grunt.initConfig({
-    env: {
-        coverage: {
-            APP_DIR_FOR_CODE_COVERAGE: '../test/coverage/instrument/app/'
-        }
-    },
-    instrument: {
-        files: 'app/*.js',
-        options: {
-            lazy: true,
-            basePath: 'test/coverage/instrument/'
-        }
-    },
-    storeCoverage: {
-        options: {
-            dir: 'test/coverage/reports'
-        }
-    },
-    makeReport: {
-        src: 'test/coverage/reports/**/*.json',
-        options: {
-            type: 'lcov',
-            dir: 'test/coverage/reports',
-            print: 'detail'
-        }
-    },
     jshint: {
         all: ['src/**/*.js', '*.js', 'spec/**/*.js'],
         options: {
             undef: true,
-            node:true,
+            node: true,
             globals: {
                 require: true,
                 module: true,
@@ -63,13 +37,8 @@ grunt.initConfig({
 });
 
 // Register tasks.
-grunt.loadNpmTasks('grunt-istanbul');
+
 grunt.loadNpmTasks('grunt-mocha-test');
 grunt.loadNpmTasks('grunt-contrib-jshint');
 
-// Default task.
-
-grunt.registerTask('coverage', ['env:coverage', 'instrument', 'mochaTest',
-    'storeCoverage', 'makeReport']);
-
-grunt.registerTask('test', ['jshint:all','mochaTest']);
+grunt.registerTask('test', ['jshint:all', 'mochaTest']);
