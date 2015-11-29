@@ -1,10 +1,5 @@
----
 engines:
-  csslint:
-    enabled: true
   eslint:
-    enabled: true
-  fixme:
     enabled: true
 ratings:
   paths:
@@ -13,5 +8,5 @@ ratings:
   - "**.jsx"
 exclude_paths:
 - spec/**/*
-- converage/**/*
+- coverage/**/*
 - examples/**/*
