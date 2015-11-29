@@ -11,7 +11,9 @@
 [2K[0G  [32m  ✓[0m[90m should assure that service function call is going to be called on a multiple plugin environment[0m
 [2K[0G  [32m  ✓[0m[90m should assure that service function call is chainable through plugins [0m
 [2K[0G  [32m  ✓[0m[90m should assure that the context of all plugin and service function calls is the service context [0m
+[2K[0G  [32m  ✓[0m[90m should assure that service parameters are properly propagated [0m
+[2K[0G  [32m  ✓[0m[90m should assure that service parameters are properly propagated when plugins are added [0m
 
 
-[92m [0m[32m 10 passing[0m[90m (18ms)[0m
+[92m [0m[32m 12 passing[0m[90m (21ms)[0m
 
