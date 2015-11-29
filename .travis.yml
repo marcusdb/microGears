@@ -6,7 +6,9 @@ node_js:
 addons:
   code_climate:
     repo_token: a1558e08cc885c164046e284ef205aadb193105c6a7e221ba15b732a33b370b2
-before_install: npm install -g grunt-cli
+before_install:
+- npm install -g grunt-cli
+- npm install -g codeclimate-test-reporter
 install: npm install
 before_script: grunt test
 after_script:
