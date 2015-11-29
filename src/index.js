@@ -40,8 +40,8 @@ ServiceController = function ServiceController() {
 
     _buildPluginChain = function _buildPluginChain(service, fn) {
         var previous, currentFn;
-        previous = function () {// removing chain & service arguments for the service function call
-            return fn.apply(service, Array.prototype.slice.call(arguments).slice(2));
+        previous = function (argsArray) {
+            return fn.apply(service,argsArray);
         };
         Object.keys(_plugins).forEach(function (a) {
             previous = R.curry(_plugins[a].bind(service))(previous);
@@ -49,7 +49,7 @@ ServiceController = function ServiceController() {
         currentFn = previous;
         return {
             process: function (service, args) {
-                return currentFn.apply(service, args);
+                return currentFn.apply(service, [args]);
             }
         };
     };

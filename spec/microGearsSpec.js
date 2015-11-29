@@ -138,8 +138,8 @@ describe("MicroGears ", function () {
         };
         var plugin1 = {
             name: 'testPlugin',
-            filter: function filter(chain, arg1, arg2) {
-                return chain(arg1, arg2);
+            filter: function filter(chain, arg1) {
+                return chain(arg1);
             }
         };
         var spy = sinon.spy(plugin1.filter);
@@ -174,8 +174,8 @@ describe("MicroGears ", function () {
 
         var plugin1 = {
             name: 'testPlugin',
-            filter: function filter(chain, arg1, arg2) {
-                return chain(arg1, arg2);
+            filter: function filter(chain, arg1) {
+                return chain(arg1);
             }
         };
         MicroGears.addPlugin(plugin1);
@@ -210,16 +210,16 @@ describe("MicroGears ", function () {
 
         var plugin1 = {
             name: 'testPlugin',
-            filter: function filter(chain, arg1, arg2) {
+            filter: function filter(chain, arg1) {
                 expect(chain).to.be.a('function');
-                return chain(arg1, arg2);
+                return chain(arg1);
             }
         };
         var plugin2 = {
             name: 'testPlugin2',
-            filter: function filter(chain, arg1, arg2) {
+            filter: function filter(chain, arg1) {
                 expect(chain).to.be.a('function');
-                return chain(arg1, arg2);
+                return chain(arg1);
             }
         };
         var spy = sinon.spy(plugin1.filter);
@@ -260,14 +260,14 @@ describe("MicroGears ", function () {
 
         var plugin1 = {
             name: 'testPlugin',
-            filter: function filter(chain, arg1, arg2) {
-                return chain(arg1, arg2);
+            filter: function filter(chain, arg1) {
+                return chain(arg1);
             }
         };
         var plugin2 = {
             name: 'testPlugin2',
-            filter: function filter(chain, arg1, arg2) {
-                return chain(arg1, arg2);
+            filter: function filter(chain, arg1) {
+                return chain(arg1);
             }
         };
 
@@ -276,8 +276,79 @@ describe("MicroGears ", function () {
 
         MicroGears.addService(service);
 
-
         MicroGears.testService.testFunction1({name: 'a'}, {}).finally(done);
+
+    });
+
+    it("should assure that service parameters are properly propagated ", function (done) {
+        var test2;
+        var service = {
+            name: 'testService',
+            namespace: "namespace",
+            testFunction1: function (arg1) {
+                expect(arg1).to.equal('firstParameter');
+                return true;
+            },
+            testFunction2: function (arg1, arg2, arg3) {
+                expect(arg1).to.equal('firstParameter');
+                expect(arg2).to.equal('secondParameter');
+                expect(arg3).to.equal('thirdParameter');
+                expect(arguments.length).to.equal(3);
+                return arg1 + arg2 + arg3;
+            }
+        };
+
+        MicroGears.addService(service);
+
+        test2 = function () {
+            MicroGears.testService.testFunction2('firstParameter', 'secondParameter', 'thirdParameter').finally(done);
+        };
+
+        MicroGears.testService.testFunction1('firstParameter').then(test2);
+
+    });
+
+    it("should assure that service parameters are properly propagated when plugins are added ", function (done) {
+        var test2;
+        var service = {
+            name: 'testService',
+            namespace: "namespace",
+            testFunction1: function (arg1) {
+                expect(arg1).to.equal('firstParameter');
+                return true;
+            },
+            testFunction2: function (arg1, arg2, arg3) {
+                expect(arg1).to.equal('firstParameter');
+                expect(arg2).to.equal('secondParameter');
+                expect(arg3).to.equal('thirdParameter');
+                expect(arguments.length).to.equal(3);
+                return arg1 + arg2 + arg3;
+            }
+        };
+
+        var plugin1 = {
+            name: 'testPlugin',
+            filter: function filter(chain, arg1) {
+                return chain(arg1);
+            }
+        };
+        var plugin2 = {
+            name: 'testPlugin2',
+            filter: function filter(chain, arg1) {
+                return chain(arg1);
+            }
+        };
+
+        MicroGears.addPlugin(plugin2);
+        MicroGears.addPlugin(plugin1);
+
+        MicroGears.addService(service);
+
+        test2 = function () {
+            MicroGears.testService.testFunction2('firstParameter', 'secondParameter', 'thirdParameter').finally(done);
+        };
+
+        MicroGears.testService.testFunction1('firstParameter').then(test2);
 
     });
 
