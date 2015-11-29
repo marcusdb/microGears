@@ -5,6 +5,7 @@
 [![Issue Stats](http://issuestats.com/github/marcusdb/microGears/badge/issue?style=flat)](http://issuestats.com/github/marcusdb/microGears)
 [![Issue Stats](http://issuestats.com/github/marcusdb/microGears/badge/pr?style=flat)](http://issuestats.com/github/marcusdb/microGears)
 [![Code Climate](https://codeclimate.com/github/marcusdb/microGears/badges/gpa.svg)](https://codeclimate.com/github/marcusdb/microGears)
+[![NPM](https://nodei.co/npm/microgears.png)](https://nodei.co/npm/microgears/)
 
 
 # MicroGears
