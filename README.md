@@ -32,7 +32,7 @@ The **name** and **namespace** are mandatory fields for the service, the reason 
 Needless to say services must be registered before use.
 
 ```javascript
-var MicroGears = require('../../src/index');
+var MicroGears = require('microgears');
 
 var userService = {
     name: 'userService',
@@ -67,7 +67,7 @@ The **filter** function will always have only two parameters: the *next* functio
 
 ### A trace plugin
 ```javascript
-var MicroGears = require('../../src/index');
+var MicroGears = require('microgears');
 
 var tracePlugin = {
     name: 'tracePlugin',
@@ -86,7 +86,7 @@ MicroGears.addPlugin(tracePlugin);
 ### A performance meter plugin (that only measures performance for the *userService* service
 
 ```javascript
-var MicroGears = require('../../src/index');
+var MicroGears = require('microgears');
 
 var performancePlugin = {
     name: 'performancePlugin',
