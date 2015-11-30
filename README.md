@@ -1,4 +1,4 @@
-[![NPM](https://nodei.co/npm/microgears.png)](https://nodei.co/npm/microgears/)
+[![NPM](https://nodei.co/npm/microgears.png?downloads=true)](https://nodei.co/npm/microgears/)
 
 [![npm version](https://badge.fury.io/js/microgears.svg)](https://badge.fury.io/js/microgears)
 [![Build Status](https://travis-ci.org/marcusdb/microGears.svg?branch=master)](https://travis-ci.org/marcusdb/microGears)
