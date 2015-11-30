@@ -10,6 +10,7 @@
 [![Test Coverage](https://codeclimate.com/github/marcusdb/microGears/badges/coverage.svg)](https://codeclimate.com/github/marcusdb/microGears/coverage)
 [![Issue Count](https://codeclimate.com/github/marcusdb/microGears/badges/issue_count.svg)](https://codeclimate.com/github/marcusdb/microGears)
 [![awsomeness](https://img.shields.io/badge/usability-awsome-brightgreen.svg)](https://github.com/marcusdb/microGears)
+[![reactive](https://img.shields.io/badge/we_are-reactive-brightgreen.svg)](https://github.com/marcusdb/microGears)
 
 
 
