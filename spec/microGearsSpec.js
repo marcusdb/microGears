@@ -200,8 +200,8 @@ describe("MicroGears ", function () {
         var service = {
             name: 'testService',
             namespace: "namespace",
-            testFunction1: function () {
-                return true;
+            testFunction1: function (arg) {
+                return arg;
             },
             testFunction2: function (arg1, arg2) {
                 return arg1 + arg2;
@@ -232,8 +232,8 @@ describe("MicroGears ", function () {
 
         MicroGears.addService(service);
 
-        var thenTest = function () {
-
+        var thenTest = function (result) {
+            expect(result).to.equal('a');
             expect(spy.calledOnce).to.be.true;
             expect(spy.callCount).to.equal(1);
             expect(spy2.calledOnce).to.be.true;
@@ -242,7 +242,7 @@ describe("MicroGears ", function () {
         var catchTest = function (arg) {
             expect(arg).to.be.undefined;
         };
-        MicroGears.testService.testFunction1({name: 'a'}, {}).then(thenTest).catch(catchTest).finally(done);
+        MicroGears.testService.testFunction1('a').then(thenTest).catch(catchTest).finally(done);
 
     });
     it("should assure that the context of all plugin and service function calls is the service context ", function (done) {
@@ -346,6 +346,54 @@ describe("MicroGears ", function () {
 
         test2 = function () {
             MicroGears.testService.testFunction2('firstParameter', 'secondParameter', 'thirdParameter').finally(done);
+        };
+
+        MicroGears.testService.testFunction1('firstParameter').then(test2);
+
+    });
+
+    it("should allow async plugins to be added ", function (done) {
+        var test2;
+        var service = {
+            name: 'testService',
+            namespace: "namespace",
+            testFunction1: function (arg1) {
+                expect(arg1).to.equal('firstParameter');
+                return true;
+            },
+            testFunction2: function (arg1, arg2, arg3) {
+                expect(arg1).to.equal('firstParameter');
+                expect(arg2).to.equal('secondParameter');
+                expect(arg3).to.equal('thirdParameter');
+                expect(arguments.length).to.equal(3);
+                return arg1 + arg2 + arg3;
+            }
+        };
+
+        var plugin1 = {
+            name: 'testPlugin',
+            filter: function filter(chain, arg1) {
+                return BlueBirdPromise.method(function (arg) {
+                    return chain(arg);
+                })(arg1);
+            }
+        };
+        var plugin2 = {
+            name: 'testPlugin2',
+            filter: function filter(chain, arg1) {
+                return chain(arg1);
+            }
+        };
+
+        MicroGears.addPlugin(plugin2);
+        MicroGears.addPlugin(plugin1);
+
+        MicroGears.addService(service);
+
+        test2 = function (result) {
+
+            expect(result).to.equal(true);
+            done();
         };
 
         MicroGears.testService.testFunction1('firstParameter').then(test2);
