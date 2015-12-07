@@ -391,12 +391,75 @@ describe("MicroGears ", function () {
         MicroGears.addService(service);
 
         test2 = function (result) {
-
             expect(result).to.equal(true);
             done();
         };
 
         MicroGears.testService.testFunction1('firstParameter').then(test2);
+
+    });
+
+    it("should allow exceptions to be thrown by the service and capture by the caller ", function (done) {
+        var test2;
+        var service = {
+            name: 'testService',
+            namespace: "namespace",
+            testFunction1: function (arg1) {
+                expect(arg1).to.equal('firstParameter');
+                throw 'ERROR';
+
+            },
+            testFunction2: function (arg1, arg2, arg3) {
+                expect(arg1).to.equal('firstParameter');
+                expect(arg2).to.equal('secondParameter');
+                expect(arg3).to.equal('thirdParameter');
+                expect(arguments.length).to.equal(3);
+                return arg1 + arg2 + arg3;
+            }
+        };
+
+        var plugin1 = {
+            name: 'testPlugin',
+            filter: function filter(chain, arg1) {
+                return (BlueBirdPromise.method(function (arg) {
+                    return chain(arg);
+                })(arg1));
+            }
+        };
+
+        var performancePlugin = {
+            name: 'performancePlugin',
+            filter: function (next, args) {
+                var hrstart, end, hrend, start, logPerformance = false, serviceName = this.serviceName, method = this.methodName;
+                logPerformance = (this.serviceName === 'testService');
+                if (logPerformance) {
+                    hrstart = process.hrtime();
+                    start = new Date();
+                }
+                return next(args).finally(function () {
+                    if (logPerformance) {
+                        end = new Date() - start;
+                        hrend = process.hrtime(hrstart);
+                        //console.log('Service:' + serviceName+ ' Method:' + method + "Execution time: %dms", end);
+                        //console.log('Service:' + serviceName+ ' Method:' + method + "Execution time (hr): %ds %dms", hrend[0], hrend[1] / 1000000);
+                    }
+                });
+
+            }
+        };
+
+        MicroGears.addPlugin(performancePlugin);
+        MicroGears.addPlugin(plugin1);
+
+        MicroGears.addService(service);
+
+        test2 = function (result) {
+
+            expect(result).to.not.be.undefined;
+            done();
+        };
+
+        MicroGears.testService.testFunction1('firstParameter').catch(test2);
 
     });
 
