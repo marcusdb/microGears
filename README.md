@@ -29,6 +29,8 @@ MicroGears was build with 3 main objectives in mind.
 The **name** and **namespace** are mandatory fields for the service, the reason is that later you are going to be able to appy the plugins to only certain services or namespaces (ie services.company.persistance or routes.company, etc..).
 Needless to say services must be registered before use.
 
+VERY IMPORTANT--->ALL service calls are promisify by microGears for you, so they are **ALWAYS** asynchronous
+
 ```javascript
 var MicroGears = require('microgears');
 
@@ -61,7 +63,9 @@ Example
 ## How to register a plugin
 
 The **name** field is mandatory and there must be a **filter** function which the first parameter is going to be pointer for the next plugin in the chain or the service function itself (after the whole plugin stack is called)
-The **filter** function will always have only two parameters: the *next* function and an array of all service function parameters (can be modified or not but should be used as a parameter to the *next* function call). 
+The **filter** function will always have only two parameters: the *next* function and an array of all service function parameters (can be modified or not but should be used as a parameter to the *next* function call).
+
+VERY IMPORTANT--->like service calls all plugin calls are promisify by microGears for you, so they are **ALWAYS** asynchronous
 
 ### A trace plugin
 ```javascript
@@ -88,22 +92,23 @@ var MicroGears = require('microgears');
 
 var performancePlugin = {
     name: 'performancePlugin',
-    filter: function (next, args) {    
-        var result, hrstart, end, hrend, start;
-        if (this.serviceName==='userService'){
+    filter: function (next, args) {
+        var hrstart, end, hrend, start, logPerformance = false,serviceName=this.serviceName,method=this.methodName;
+        logPerformance = (this.serviceName === 'testService');
+        if (logPerformance) {
             hrstart = process.hrtime();
             start = new Date();
-            result = next(args);
-            end = new Date() - start;
-            hrend = process.hrtime(hrstart);
-    
-            console.info('Service:' + this.serviceName + ' Method:' + this.methodName + "Execution time: %dms", end);
-            console.info('Service:' + this.serviceName + ' Method:' + this.methodName + "Execution time (hr): %ds %dms", hrend[0], hrend[1] / 1000000);
-        }else{
-            result = next(args);
+            
         }
-        
-        return result;
+        return next(args).finally(function () {
+            if (logPerformance) {
+                end = new Date() - start;
+                hrend = process.hrtime(hrstart);
+                
+                console.log('Service:' + serviceName+ ' Method:' + method + "Execution time: %dms", end);
+                console.log('Service:' + serviceName+ ' Method:' + method + "Execution time (hr): %ds %dms", hrend[0], hrend[1] / 1000000);
+            }
+        });
 
     }
 };

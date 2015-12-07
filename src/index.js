@@ -40,11 +40,11 @@ ServiceController = function ServiceController() {
 
     _buildPluginChain = function _buildPluginChain(service, fn) {
         var previous, currentFn;
-        previous = function (argsArray) {
+        previous = BlueBirdPromise.method(function (argsArray) {
             return fn.apply(service,argsArray);
-        };
+        });
         Object.keys(_plugins).forEach(function (a) {
-            previous = R.curry(_plugins[a].bind(service))(previous);
+            previous = BlueBirdPromise.method(R.curry(_plugins[a].bind(service))(previous));
         });
         currentFn = previous;
         return {
