@@ -1,0 +1,8 @@
+#Instanbul folder
+coverage
+
+#Webstorm config
+.idea
+
+#Dependencies
+node_modules
