@@ -50,12 +50,13 @@ grunt.initConfig({
   }
 });
 
-// Register tasks.
-
+//Load modules
 grunt.loadNpmTasks('grunt-mocha-test');
 grunt.loadNpmTasks('grunt-contrib-jshint');
 grunt.loadNpmTasks('grunt-mocha-istanbul');
 grunt.loadNpmTasks('grunt-contrib-watch');
 
-grunt.registerTask('test', ['jshint:all', 'mochaTest', 'mocha_istanbul:coverage', 'watch']);
+// Register tasks
+grunt.registerTask('default', ['jshint:all', 'mochaTest', 'mocha_istanbul:coverage', 'watch']);
+grunt.registerTask('test', ['jshint:all', 'mochaTest', 'mocha_istanbul:coverage']);
 grunt.registerTask('coverage', ['mocha_istanbul:coverage']);
