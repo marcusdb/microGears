@@ -309,10 +309,12 @@ describe("MicroGears ", function () {
         MicroGears.addService(service);
 
         test2 = function () {
-            MicroGears.testService.testFunction2('firstParameter', 'secondParameter', 'thirdParameter').finally(done);
+            return MicroGears.testService.testFunction2('firstParameter', 'secondParameter', 'thirdParameter');
         };
 
-        MicroGears.testService.testFunction1('firstParameter').then(test2);
+        MicroGears.testService.testFunction1('firstParameter').then(test2).then(function () {
+            done();
+        });
 
     });
 
@@ -353,10 +355,12 @@ describe("MicroGears ", function () {
         MicroGears.addService(service);
 
         test2 = function () {
-            MicroGears.testService.testFunction2('firstParameter', 'secondParameter', 'thirdParameter').finally(done);
+            return MicroGears.testService.testFunction2('firstParameter', 'secondParameter', 'thirdParameter');
         };
 
-        MicroGears.testService.testFunction1('firstParameter').then(test2);
+        MicroGears.testService.testFunction1('firstParameter').then(test2).then(function (result) {
+            done();
+        });
 
     });
 
@@ -414,7 +418,7 @@ describe("MicroGears ", function () {
             namespace: "namespace",
             testFunction1: function (arg1) {
                 assert.equal(arg1, 'firstParameter');
-                throw 'ERROR';
+                throw new Error('ERROR');
 
             },
             testFunction2: function (arg1, arg2, arg3) {
@@ -429,9 +433,9 @@ describe("MicroGears ", function () {
         var plugin1 = {
             name: 'testPlugin',
             filter: function filter(chain, arg1) {
-                return (BlueBirdPromise.method(function (arg) {
-                    return chain(arg);
-                })(arg1));
+
+                    return chain(arg1);
+
             }
         };
 
@@ -511,11 +515,9 @@ describe("MicroGears ", function () {
             }
         };
 
-
         var plugin3 = {
             name: 'testPlugin3',
             filter: function filter(chain, arg1) {
-                
 
                 return chain(arg1);
 
