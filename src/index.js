@@ -41,7 +41,7 @@ ServiceController = function ServiceController() {
     _buildPluginChain = function _buildPluginChain(service, fn) {
         var previous, currentFn;
         previous = BlueBirdPromise.method(function (argsArray) {
-            return fn.apply(service,argsArray);
+            return fn.apply(service, argsArray);
         });
         Object.keys(_plugins).forEach(function (a) {
             previous = BlueBirdPromise.method(R.curry(_plugins[a].bind(service))(previous));
@@ -64,11 +64,11 @@ ServiceController = function ServiceController() {
         if (typeof obj[key] === 'function') {
             var func = obj[key];
             obj[key] = function () {
-                var args = Array.prototype.slice.call(arguments).map(_deepFreeze);
+                var args = Array.prototype.slice.call(arguments);
                 var meta = {
                     serviceName: obj.name,
                     methodName: key,
-                    serviceNameSpace:obj.namespace
+                    serviceNameSpace: obj.namespace
                 };
                 return BlueBirdPromise.method(_buildPluginChainCached(meta, func).process)(meta, args);
             };
@@ -76,27 +76,6 @@ ServiceController = function ServiceController() {
 
     };
 
-    _deepFreeze = function _deepFreeze(obj) {
-        if (typeof obj !== 'object') {
-            return obj;
-        }
-
-        // Retrieve the property names defined on obj
-        var propNames = Object.getOwnPropertyNames(obj);
-
-        // Freeze properties before freezing self
-        propNames.forEach(function (name) {
-            var prop = obj[name];
-
-            // Freeze prop if it is an object
-            if (typeof prop === 'object' && !Object.isFrozen(prop)) {
-                _deepFreeze(prop);
-            }
-
-        });
-
-        return Object.freeze(obj);
-    };
     _addService = function _addService(service) {
         if (!service.name) {
             throw 'service name is mandatory';
