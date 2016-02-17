@@ -89,6 +89,7 @@ ServiceController = function ServiceController() {
         Object.keys(service).forEach(R.curry(_createPromisifyProxy)(service));
 
         _servicePubFunctions[service.name] = service;
+	return service;
     };
 
     _resetMicroGears = function () {
