@@ -539,5 +539,82 @@ describe("MicroGears ", function () {
         MicroGears.testService.testFunction2(1, 1, 1).then(test2);
 
     });
+    
+        it("should intercept methods into prototype", function(done) {
+        var test2;
+
+        function Service() {
+            this.name = 'testService';
+            this.namespace = 'namespace';
+        }
+
+        Service.prototype.testFunction1 = function(arg1) {
+            assert.equal(arg1, 'firstParameter');
+            return true;
+        };
+
+        Service.prototype.testFunction2 = function(arg1, arg2, arg3) {
+            assert.equal(arg1, 'firstParameter');
+            assert.equal(arg2, 'secondParameter');
+            assert.equal(arg3, 'thirdParameter');
+            assert.equal(arguments.length, 3);
+            return arg1 + arg2 + arg3;
+        };
+
+        MicroGears.addService(new Service());
+
+        test2 = function() {
+            return MicroGears.testService.testFunction2('firstParameter', 'secondParameter', 'thirdParameter');
+        };
+
+        MicroGears.testService.testFunction1('firstParameter').then(test2).then(function() {
+            done();
+        });
+
+    });
+
+
+    it("should have the service meta information available in the plugin context of a prototypal class", function(done) {
+        var test2;
+
+        function Service() {
+            this.name = 'testService';
+            this.namespace = 'namespace';
+        }
+
+        Service.prototype.testFunction1 = function(arg1) {
+            return arg1;
+        };
+
+        Service.prototype.testFunction2 = function(arg1, arg2, arg3) {
+            return arg1 + arg2 + arg3;
+        };
+        
+        var plugin1 = {
+            name: 'testPlugin1',
+            filter: function filter(chain, arg1) {
+
+                assert.equal(this.serviceName, 'testService');
+                assert.equal(this.serviceNameSpace, 'namespace');
+                assert.equal(this.methodName, 'testFunction2');
+                return (BlueBirdPromise.method(function(arg) {
+                    return chain(arg);
+                })(arg1));
+            }
+        };
+        
+        MicroGears.addPlugin(plugin1);
+
+        MicroGears.addService(new Service());
+
+        test2 = function(result) {
+
+            assert.equal(result, 3);
+            done();
+        };
+
+        MicroGears.testService.testFunction2(1, 1, 1).then(test2);
+
+    });
 
 });
