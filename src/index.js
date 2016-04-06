@@ -77,6 +77,9 @@ ServiceController = function ServiceController() {
     };
 
     _addService = function _addService(service) {
+        
+        var createProxy;        
+        
         if (!service.name) {
             throw 'service name is mandatory';
         }
@@ -86,10 +89,21 @@ ServiceController = function ServiceController() {
         _validadeService(service);
         _services = _services || [];
         _services.push(service.name);
-        Object.keys(service).forEach(R.curry(_createPromisifyProxy)(service));
-
+        
+        createProxy = R.curry(_createPromisifyProxy);
+        
+        R.pipe(
+            R.flatten,
+            R.uniq,
+            R.filter(R.compose(R.not, R.equals('constructor'))),
+            R.forEach(createProxy(service))
+        )([
+            Object.getOwnPropertyNames(Object.getPrototypeOf(service)),
+            Object.keys(service)
+        ]);  
+            
         _servicePubFunctions[service.name] = service;
-	return service;
+	    return service;
     };
 
     _resetMicroGears = function () {
