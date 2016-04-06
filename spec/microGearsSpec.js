@@ -258,7 +258,7 @@ describe("MicroGears ", function () {
             name: 'testService',
             namespace: "namespace",
             testFunction1: function () {
-                assert.equal(this.serviceName, 'testService');
+                assert.equal(this.microgears.serviceName, 'testService');
                 return true;
             },
             testFunction2: function (arg1, arg2) {
@@ -442,8 +442,8 @@ describe("MicroGears ", function () {
         var performancePlugin = {
             name: 'performancePlugin',
             filter: function (next, args) {
-                var hrstart, end, hrend, start, logPerformance = false, serviceName = this.serviceName, method = this.methodName;
-                logPerformance = (this.serviceName === 'testService');
+                var hrstart, end, hrend, start, logPerformance = false, serviceName = this.microgears.serviceName, method = this.microgears.methodName;
+                logPerformance = (this.microgears.serviceName === 'testService');
                 if (logPerformance) {
                     hrstart = process.hrtime();
                     start = new Date();
@@ -492,9 +492,9 @@ describe("MicroGears ", function () {
             name: 'testPlugin1',
             filter: function filter(chain, arg1) {
 
-                assert.equal(this.serviceName, 'testService');
-                assert.equal(this.serviceNameSpace, 'namespace');
-                assert.equal(this.methodName, 'testFunction2');
+                assert.equal(this.microgears.serviceName, 'testService');
+                assert.equal(this.microgears.serviceNameSpace, 'namespace');
+                assert.equal(this.microgears.methodName, 'testFunction2');
                 return (BlueBirdPromise.method(function (arg) {
                     return chain(arg);
                 })(arg1));
@@ -505,9 +505,9 @@ describe("MicroGears ", function () {
             name: 'testPlugin2',
             filter: function filter(chain, arg1) {
 
-                assert.equal(this.serviceName, 'testService');
-                assert.equal(this.serviceNameSpace, 'namespace');
-                assert.equal(this.methodName, 'testFunction2');
+                assert.equal(this.microgears.serviceName, 'testService');
+                assert.equal(this.microgears.serviceNameSpace, 'namespace');
+                assert.equal(this.microgears.methodName, 'testFunction2');
 
                 return (BlueBirdPromise.method(function (arg) {
                     return chain(arg);
@@ -593,10 +593,10 @@ describe("MicroGears ", function () {
         var plugin1 = {
             name: 'testPlugin1',
             filter: function filter(chain, arg1) {
-
-                assert.equal(this.serviceName, 'testService');
-                assert.equal(this.serviceNameSpace, 'namespace');
-                assert.equal(this.methodName, 'testFunction2');
+                
+                assert.equal(this.microgears.serviceName, 'testService');
+                assert.equal(this.microgears.serviceNameSpace, 'namespace');
+                assert.equal(this.microgears.methodName, 'testFunction2');
                 return (BlueBirdPromise.method(function(arg) {
                     return chain(arg);
                 })(arg1));
@@ -614,6 +614,62 @@ describe("MicroGears ", function () {
         };
 
         MicroGears.testService.testFunction2(1, 1, 1).then(test2);
+
+    });
+    
+    it("should keep the instance of the object in 'this' use prototypal class", function(done) {
+        var test2;
+
+        function Service() {
+            this.name = 'testService';
+            this.namespace = 'namespace';
+        }
+
+        Service.prototype.plus1 = function() {
+            return 1;
+        };
+
+        Service.prototype.callPlus1 = function() {
+            return this.plus1().then(function(r) {
+                return r + 1; 
+            }) ;
+        };
+
+        MicroGears.addService(new Service());
+
+        test2 = function(result) {
+
+            assert.equal(result, 2);
+            done();
+        };
+
+        MicroGears.testService.callPlus1().then(test2);
+
+    });
+    
+    it("should keep the instance of the object in 'this' use literal object", function(done) {
+        var test2;
+
+        MicroGears.addService({
+            name: 'testService',
+            namespace: 'namespace',
+            plus1: function() {
+                return 1;
+            },
+            callPlus1: function() {
+                return this.plus1().then(function(r) {
+                   return r + 1; 
+                }) ;
+            }
+        });
+
+        test2 = function(result) {
+
+            assert.equal(result, 2);
+            done();
+        };
+
+        MicroGears.testService.callPlus1().then(test2);
 
     });
 

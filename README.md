@@ -74,7 +74,8 @@ var MicroGears = require('microgears');
 var tracePlugin = {
     name: 'tracePlugin',
     filter: function (next, args) {
-        var serviceName=this.serviceName,method=this.methodName;
+        var serviceName = this.microgears.serviceName,
+            method = this.microgears.methodName;
         console.log('before call-> '+serviceName+'.'+method);
         return next(args).then(function (result) {
             console.log('after successful call of-> '+serviceName+'.'+method);
@@ -97,8 +98,8 @@ var MicroGears = require('microgears');
 var performancePlugin = {
     name: 'performancePlugin',
     filter: function (next, args) {
-        var hrstart, end, hrend, start, logPerformance = false,serviceName=this.serviceName,method=this.methodName;
-        logPerformance = (this.serviceName === 'userService');
+        var hrstart, end, hrend, start, logPerformance = false,serviceName=this.microgears.serviceName,method=this.microgears.methodName;
+        logPerformance = (serviceName === 'userService');
         if (logPerformance) {
             hrstart = process.hrtime();
             start = new Date();

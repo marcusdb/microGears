@@ -65,12 +65,12 @@ ServiceController = function ServiceController() {
             var func = obj[key];
             obj[key] = function () {
                 var args = Array.prototype.slice.call(arguments);
-                var meta = {
+                obj.microgears = {
                     serviceName: obj.name,
                     methodName: key,
                     serviceNameSpace: obj.namespace
                 };
-                return BlueBirdPromise.method(_buildPluginChainCached(meta, func).process)(meta, args);
+                return BlueBirdPromise.method(_buildPluginChainCached(obj, func).process)(obj, args);
             };
         }
 
