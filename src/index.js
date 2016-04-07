@@ -5,7 +5,9 @@ var R = require('ramda');
 var ServiceController;
 
 ServiceController = function ServiceController() {
-    var _resetMicroGears, _addService, _validadeService, _buildPluginChain, _createPromisifyProxy, _addPlugin, _removePlugin, _deepFreeze, _servicePubFunctions = {}, _plugins = {}, _pluginChainCache = {}, _buildPluginChainCached, _services;
+    var _resetMicroGears, _addService, _validadeService, _buildPluginChain, _createPromisifyProxy, _addPlugin,
+        _removePlugin, _deepFreeze, _servicePubFunctions = {}, _plugins = {}, _pluginChainCache = {}, _buildPluginChainCached,
+        _services, _buildPluginAsync, _buildPluginSync;
 
     _addPlugin = function _addPlugin(plugin) { // plugin has to have 4 args chain,service,body, header
         if (typeof plugin.filter !== 'function') {
@@ -33,16 +35,17 @@ ServiceController = function ServiceController() {
         var functionName, result;
         functionName = fn.toString().split(')');
         _pluginChainCache[service.name] = _pluginChainCache[service.name] || {};
-        result = _pluginChainCache[service.name][functionName] || _buildPluginChain(service, fn);
+        result = _pluginChainCache[service.name][functionName] || _buildPluginChain(service, fn, service.promisify);
         _pluginChainCache[service.name][functionName] = result;
         return result;
     };
 
-    _buildPluginChain = function _buildPluginChain(service, fn) {
+    _buildPluginChain = function _buildPluginChain(service, fn, promisify) {
         var previous, currentFn;
-        previous = BlueBirdPromise.method(function (argsArray) {
-            return fn.apply(service, argsArray);
-        });
+        if(promisify === undefined) promisify = true;
+
+        previous = (promisify && _buildPluginAsync || _buildPluginSync).apply(null, arguments);
+
         Object.keys(_plugins).forEach(function (a) {
             previous = BlueBirdPromise.method(R.curry(_plugins[a].bind(service))(previous));
         });
@@ -54,6 +57,18 @@ ServiceController = function ServiceController() {
         };
     };
 
+    _buildPluginAsync = function _buildPluginAsync(service, fn){
+        return BlueBirdPromise.method(function (argsArray) {
+            return fn.apply(service, argsArray);
+        });
+    };
+
+    _buildPluginSync = function _buildPluginSync(service, fn){
+        return function (argsArray) {
+            return fn.apply(service, argsArray);
+        };
+    };
+
     _validadeService = function _validadeService(service) {
         if (!R.has('name', service)) {
             throw 'service must have a name';
@@ -61,6 +76,8 @@ ServiceController = function ServiceController() {
     };
 
     _createPromisifyProxy = function _createPromisifyProxy(obj, key) {
+        var promisify = obj.promisify;
+
         if (typeof obj[key] === 'function') {
             var func = obj[key];
             obj[key] = function () {
@@ -70,15 +87,15 @@ ServiceController = function ServiceController() {
                     methodName: key,
                     serviceNameSpace: obj.namespace
                 };
-                return BlueBirdPromise.method(_buildPluginChainCached(obj, func).process)(obj, args);
+                return (promisify && BlueBirdPromise.method(_buildPluginChainCached(obj, func).process)(obj, args) || _buildPluginChainCached(obj, func).process(obj, args));
             };
         }
 
     };
 
     _addService = function _addService(service) {
-        
-        var createProxy;        
+
+        var createProxy;
         
         if (!service.name) {
             throw 'service name is mandatory';
@@ -89,6 +106,8 @@ ServiceController = function ServiceController() {
         _validadeService(service);
         _services = _services || [];
         _services.push(service.name);
+
+        service.promisify = (service.promisify === undefined ? true : service.promisify);
         
         createProxy = R.curry(_createPromisifyProxy);
         

@@ -42,6 +42,7 @@ describe("MicroGears ", function () {
 
         });
 
+
         assert.ok(MicroGears.testService.testFunction1, 'testFunction1 on testService exists');
         assert.isFunction(MicroGears.testService.testFunction1, 'testFunction1 on testService is a function');
     });
@@ -670,6 +671,26 @@ describe("MicroGears ", function () {
         };
 
         MicroGears.testService.callPlus1().then(test2);
+
+    });
+
+    it("should not be a promise function", function(done) {
+
+        MicroGears.addService({
+            name: 'testService',
+            namespace: 'namespace',
+            promisify: false,
+            plus1: function() {
+                return 1;
+            },
+            callPlus1: function() {
+                return this.plus1();
+            }
+        });
+
+
+        assert.equal(MicroGears.testService.callPlus1(), 1);
+        done();
 
     });
 
