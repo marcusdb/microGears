@@ -29,13 +29,14 @@ MicroGears was build with 3 main objectives in mind.
 The **name** and **namespace** are mandatory fields for the service, the reason is that later you are going to be able to appy the plugins to only certain services or namespaces (ie services.company.persistance or routes.company, etc..).
 Needless to say services must be registered before use.
 
-VERY IMPORTANT--->ALL service calls are promisify by microGears for you, so they are **ALWAYS** asynchronous
+VERY IMPORTANT--->ALL service calls are promisify by microGears for you, so they are **ALWAYS** asynchronous, except when the **async** property is set to false, this property is optional and your **default value is true**
 
 ```javascript
 var MicroGears = require('microgears');
 
 var userService = {
     name: 'userService',
+    async: true, //This is an optional property : [default = true ]. This is the same as omitting it.
     namespace: "services.userservice",
     findUserById: function (id) {
         return {
@@ -46,7 +47,7 @@ var userService = {
 };
 MicroGears.addService(userService);
 ```
-Since MicroGears is goint to transform the service functions into promises you should keep this in mind when using the framework
+Since MicroGears is goint to transform the service functions into promises you should keep this in mind when using the framework, except if async is set to false
 
 ### Using the registered service
 
@@ -62,10 +63,12 @@ Example
 
 ## How to register a plugin
 
-The **name** field is mandatory and there must be a **filter** function which the first parameter is going to be pointer for the next plugin in the chain or the service function itself (after the whole plugin stack is called)
-The **filter** function will always have only two parameters: the *next* function and an array of all service function parameters (can be modified or not but should be used as a parameter to the *next* function call).
+The **name** field is mandatory and there must be a **beforeChain**, **afterChain** or both functions, which the first parameter is going to an array of all service function parameters (can be modified or not but should be used as a return of this function),
+the next parameter is a meta information of the service call, it is an object that you can share information between another plugins.
 
-VERY IMPORTANT--->like service calls all plugin calls are promisify by microGears for you, so they are **ALWAYS** asynchronous
+The **beforeChain** or **afterChain** function will always have only two parameters: the *args*,  an array of all service function parameters, and *_meta*, an object that have information about service caller, an can used too for sharing information between plugins.
+
+VERY IMPORTANT--->plugins follow the service behaviors about synchronization if async service property, is seted to false, services and plugins will be synchronous, otherwise, all will be async.
 
 ### A trace plugin
 ```javascript
@@ -73,17 +76,27 @@ var MicroGears = require('microgears');
 
 var tracePlugin = {
     name: 'tracePlugin',
-    filter: function (next, args) {
-        var serviceName = this.microgears.serviceName,
-            method = this.microgears.methodName;
+    beforeChain: function (args, _meta) {
+        var serviceName = _meta.serviceName,
+            method = _meta.methodName;
         console.log('before call-> '+serviceName+'.'+method);
-        return next(args).then(function (result) {
-            console.log('after successful call of-> '+serviceName+'.'+method);
-            return result;
-        }).catch(function(error){
-            console.log('call of-> '+serviceName+'.'+method+' has throw an error');
-            throw error;
-        });
+
+        _meta.mySharedData = {
+            count: 1
+        };
+
+        return args
+    },
+    afterChain: function (result, _meta) {
+        var serviceName = _meta.serviceName,
+            method = _meta.methodName;
+
+        console.log('after of-> '+serviceName+'.'+method);
+        if(_meta.mySharedData.count){
+            console.log('this number comes to the beforeChain: '+ _meta.mySharedData.count);
+        }
+
+        return result;
     }
 };
 
@@ -115,6 +128,39 @@ var performancePlugin = {
             }
         });
 
+    }
+};
+
+var performancePlugin = {
+    name: 'performancePlugin',
+    beforeChain: function (args, _meta) {
+        var hrstart, start, logPerformance = false, serviceName = this.microgears.serviceName;
+
+        logPerformance = (serviceName === 'testService');
+        if (logPerformance) {
+            hrstart = process.hrtime();
+            start = new Date();
+        }
+
+        _meta.statistcs = {
+            hrstart: hrstart,
+            start: start,
+            logPerformance: logPerformance
+        };
+
+        return args;
+
+    },
+    afterChain: function (result, _meta) {
+        if (_meta.statistcs.logPerformance) {
+            _meta.statistcs.end = new Date() - _meta.statistcs.start;
+            _meta.statistcs.hrend = process.hrtime(_meta.statistcs.hrstart);
+        }
+
+        console.log('Service:' + _meta.serviceName+ ' Method:' + _meta.method + "Execution time: %dms", _meta.statistcs.end);
+        console.log('Service:' + _meta.serviceName+ ' Method:' + _meta.method + "Execution time (hr): %ds %dms", _meta.statistcs.hrend[0], _meta.statistcs.hrend[1] / 1000000);
+
+        return result;
     }
 };
 
