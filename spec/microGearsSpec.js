@@ -117,8 +117,8 @@ describe("MicroGears ", function () {
         });
         var plugin1 = {
             name: 'testPlugin',
-            filter: function filter(chain, arg1, arg2) {
-                return chain(arg1, arg2);
+            beforeChain: function beforeChain(args, _meta) {
+                return args;
             }
         };
         MicroGears.addPlugin(plugin1);
@@ -146,12 +146,12 @@ describe("MicroGears ", function () {
         };
         var plugin1 = {
             name: 'testPlugin',
-            filter: function filter(chain, arg1) {
-                return chain(arg1);
+            beforeChain: function filter(args, _meta) {
+                return args;
             }
         };
-        var spy = sinon.spy(plugin1.filter);
-        plugin1.filter = spy;
+        var spy = sinon.spy(plugin1.beforeChain);
+        plugin1.beforeChain = spy;
 
         MicroGears.addService(service);
 
@@ -182,8 +182,8 @@ describe("MicroGears ", function () {
 
         var plugin1 = {
             name: 'testPlugin',
-            filter: function filter(chain, arg1) {
-                return chain(arg1);
+            beforeChain: function filter(args, _meta) {
+                return args;
             }
         };
         MicroGears.addPlugin(plugin1);
@@ -218,23 +218,21 @@ describe("MicroGears ", function () {
 
         var plugin1 = {
             name: 'testPlugin',
-            filter: function filter(chain, arg1) {
-                assert.isFunction(chain);
-                return chain(arg1);
+            beforeChain: function filter(args) {
+                return args;
             }
         };
         var plugin2 = {
             name: 'testPlugin2',
-            filter: function filter(chain, arg1) {
-                assert.isFunction(chain);
-                return chain(arg1);
+            beforeChain: function filter(args) {
+                return args;
             }
         };
-        var spy = sinon.spy(plugin1.filter);
-        var spy2 = sinon.spy(plugin2.filter);
+        var spy = sinon.spy(plugin1.beforeChain);
+        var spy2 = sinon.spy(plugin2.beforeChain);
 
-        plugin1.filter = spy;
-        plugin2.filter = spy2;
+        plugin1.beforeChain = spy;
+        plugin2.beforeChain = spy2;
         MicroGears.addPlugin(plugin1);
         MicroGears.addPlugin(plugin2);
 
@@ -269,14 +267,14 @@ describe("MicroGears ", function () {
 
         var plugin1 = {
             name: 'testPlugin',
-            filter: function filter(chain, arg1) {
-                return chain(arg1);
+            beforeChain: function filter(args) {
+                return args;
             }
         };
         var plugin2 = {
             name: 'testPlugin2',
-            filter: function filter(chain, arg1) {
-                return chain(arg1);
+            beforeChain: function filter(args) {
+                return args;
             }
         };
 
@@ -339,14 +337,14 @@ describe("MicroGears ", function () {
 
         var plugin1 = {
             name: 'testPlugin',
-            filter: function filter(chain, arg1) {
-                return chain(arg1);
+            beforeChain: function filter(args) {
+                return args;
             }
         };
         var plugin2 = {
             name: 'testPlugin2',
-            filter: function filter(chain, arg1) {
-                return chain(arg1);
+            beforeChain: function filter(args) {
+                return args;
             }
         };
 
@@ -385,16 +383,16 @@ describe("MicroGears ", function () {
 
         var plugin1 = {
             name: 'testPlugin',
-            filter: function filter(chain, arg1) {
+            beforeChain: function filter(args) {
                 return BlueBirdPromise.method(function (arg) {
-                    return chain(arg);
-                })(arg1);
+                    return arg;
+                })(args);
             }
         };
         var plugin2 = {
             name: 'testPlugin2',
-            filter: function filter(chain, arg1) {
-                return chain(arg1);
+            beforeChain: function filter(args) {
+                return args;
             }
         };
 
@@ -433,29 +431,39 @@ describe("MicroGears ", function () {
 
         var plugin1 = {
             name: 'testPlugin',
-            filter: function filter(chain, arg1) {
-
-                    return chain(arg1);
-
+            beforeChain: function filter(args) {
+                return args;
             }
         };
 
         var performancePlugin = {
             name: 'performancePlugin',
-            filter: function (next, args) {
-                var hrstart, end, hrend, start, logPerformance = false, serviceName = this.microgears.serviceName, method = this.microgears.methodName;
+            beforeChain: function (args, _meta) {
+                var hrstart, start, logPerformance = false, serviceName = this.microgears.serviceName, method = this.microgears.methodName;
+
                 logPerformance = (this.microgears.serviceName === 'testService');
                 if (logPerformance) {
                     hrstart = process.hrtime();
                     start = new Date();
                 }
-                return next(args).finally(function () {
-                    if (logPerformance) {
-                        end = new Date() - start;
-                        hrend = process.hrtime(hrstart);
-                    }
-                });
 
+                _meta.statistcs = {
+                    hrstart: hrstart,
+                    start: start,
+                    logPerformance: logPerformance
+                };
+
+                return args;
+
+            },
+            afterChain: function (result, _meta) {
+                if (_meta.statistcs.logPerformance) {
+                    _meta.statistcs.end = new Date() - _meta.statistcs.start;
+                    _meta.statistcs.hrend = process.hrtime(_meta.statistcs.hrstart);
+                }
+                console.log(_meta.statistcs);
+
+                return result;
             }
         };
 
@@ -491,36 +499,36 @@ describe("MicroGears ", function () {
 
         var plugin1 = {
             name: 'testPlugin1',
-            filter: function filter(chain, arg1) {
+            beforeChain: function filter(args, _meta) {
 
-                assert.equal(this.microgears.serviceName, 'testService');
-                assert.equal(this.microgears.serviceNameSpace, 'namespace');
-                assert.equal(this.microgears.methodName, 'testFunction2');
+                assert.equal(_meta.serviceName, 'testService');
+                assert.equal(_meta.serviceNameSpace, 'namespace');
+                assert.equal(_meta.methodName, 'testFunction2');
                 return (BlueBirdPromise.method(function (arg) {
-                    return chain(arg);
-                })(arg1));
+                    return arg;
+                })(args));
             }
         };
 
         var plugin2 = {
             name: 'testPlugin2',
-            filter: function filter(chain, arg1) {
+            beforeChain: function filter(args, _meta) {
 
-                assert.equal(this.microgears.serviceName, 'testService');
-                assert.equal(this.microgears.serviceNameSpace, 'namespace');
-                assert.equal(this.microgears.methodName, 'testFunction2');
+                assert.equal(_meta.serviceName, 'testService');
+                assert.equal(_meta.serviceNameSpace, 'namespace');
+                assert.equal(_meta.methodName, 'testFunction2');
 
                 return (BlueBirdPromise.method(function (arg) {
-                    return chain(arg);
-                })(arg1));
+                    return arg;
+                })(args));
             }
         };
 
         var plugin3 = {
             name: 'testPlugin3',
-            filter: function filter(chain, arg1) {
+            beforeChain: function filter(args) {
 
-                return chain(arg1);
+                return args;
 
             }
         };
@@ -540,8 +548,8 @@ describe("MicroGears ", function () {
         MicroGears.testService.testFunction2(1, 1, 1).then(test2);
 
     });
-    
-        it("should intercept methods into prototype", function(done) {
+
+    it("should intercept methods into prototype", function (done) {
         var test2;
 
         function Service() {
@@ -549,12 +557,12 @@ describe("MicroGears ", function () {
             this.namespace = 'namespace';
         }
 
-        Service.prototype.testFunction1 = function(arg1) {
+        Service.prototype.testFunction1 = function (arg1) {
             assert.equal(arg1, 'firstParameter');
             return true;
         };
 
-        Service.prototype.testFunction2 = function(arg1, arg2, arg3) {
+        Service.prototype.testFunction2 = function (arg1, arg2, arg3) {
             assert.equal(arg1, 'firstParameter');
             assert.equal(arg2, 'secondParameter');
             assert.equal(arg3, 'thirdParameter');
@@ -564,51 +572,50 @@ describe("MicroGears ", function () {
 
         MicroGears.addService(new Service());
 
-        test2 = function() {
+        test2 = function () {
             return MicroGears.testService.testFunction2('firstParameter', 'secondParameter', 'thirdParameter');
         };
 
-        MicroGears.testService.testFunction1('firstParameter').then(test2).then(function() {
+        MicroGears.testService.testFunction1('firstParameter').then(test2).then(function () {
             done();
         });
 
     });
 
 
-    it("should have the service meta information available in the plugin context of a prototypal class", function(done) {
+    it("should have the service meta information available in the plugin context of a prototypal class", function (done) {
         var test2;
 
         function Service() {
             this.name = 'testService';
             this.namespace = 'namespace';
+            this.async = false;
         }
 
-        Service.prototype.testFunction1 = function(arg1) {
+        Service.prototype.testFunction1 = function (arg1) {
             return arg1;
         };
 
-        Service.prototype.testFunction2 = function(arg1, arg2, arg3) {
-            return arg1 + arg2 + arg3;
+        Service.prototype.testFunction2 = function (arg1, arg2, arg3) {
+            return BlueBirdPromise.resolve(arg1 + arg2 + arg3);
         };
-        
+
         var plugin1 = {
             name: 'testPlugin1',
-            filter: function filter(chain, arg1) {
-                
-                assert.equal(this.microgears.serviceName, 'testService');
-                assert.equal(this.microgears.serviceNameSpace, 'namespace');
-                assert.equal(this.microgears.methodName, 'testFunction2');
-                return (BlueBirdPromise.method(function(arg) {
-                    return chain(arg);
-                })(arg1));
+            beforeChain: function filter(args, _meta) {
+
+                assert.equal(_meta.serviceName, 'testService');
+                assert.equal(_meta.serviceNameSpace, 'namespace');
+                assert.equal(_meta.methodName, 'testFunction2');
+                return args;
             }
         };
-        
+
         MicroGears.addPlugin(plugin1);
 
         MicroGears.addService(new Service());
 
-        test2 = function(result) {
+        test2 = function (result) {
 
             assert.equal(result, 3);
             done();
@@ -617,8 +624,8 @@ describe("MicroGears ", function () {
         MicroGears.testService.testFunction2(1, 1, 1).then(test2);
 
     });
-    
-    it("should keep the instance of the object in 'this' use prototypal class", function(done) {
+
+    it("should keep the instance of the object in 'this' use prototypal class", function (done) {
         var test2;
 
         function Service() {
@@ -626,19 +633,19 @@ describe("MicroGears ", function () {
             this.namespace = 'namespace';
         }
 
-        Service.prototype.plus1 = function() {
+        Service.prototype.plus1 = function () {
             return 1;
         };
 
-        Service.prototype.callPlus1 = function() {
-            return this.plus1().then(function(r) {
-                return r + 1; 
-            }) ;
+        Service.prototype.callPlus1 = function () {
+            return this.plus1().then(function (r) {
+                return r + 1;
+            });
         };
 
         MicroGears.addService(new Service());
 
-        test2 = function(result) {
+        test2 = function (result) {
 
             assert.equal(result, 2);
             done();
@@ -647,24 +654,24 @@ describe("MicroGears ", function () {
         MicroGears.testService.callPlus1().then(test2);
 
     });
-    
-    it("should keep the instance of the object in 'this' use literal object", function(done) {
+
+    it("should keep the instance of the object in 'this' use literal object", function (done) {
         var test2;
 
         MicroGears.addService({
             name: 'testService',
             namespace: 'namespace',
-            plus1: function() {
+            plus1: function () {
                 return 1;
             },
-            callPlus1: function() {
-                return this.plus1().then(function(r) {
-                   return r + 1; 
-                }) ;
+            callPlus1: function () {
+                return this.plus1().then(function (r) {
+                    return r + 1;
+                });
             }
         });
 
-        test2 = function(result) {
+        test2 = function (result) {
 
             assert.equal(result, 2);
             done();
@@ -674,24 +681,268 @@ describe("MicroGears ", function () {
 
     });
 
-    it("should not be a promise function", function(done) {
+    it("should not be a promise function", function (done) {
 
         MicroGears.addService({
             name: 'testService',
             namespace: 'namespace',
-            promisify: false,
-            plus1: function() {
-                return 1;
+            async: false,
+            plus1: function (a) {
+                assert.equal(a, '1');
+
+                return a + 1;
             },
-            callPlus1: function() {
-                return this.plus1();
+            callPlus1: function (a) {
+                assert.equal(a, '1');
+
+                return this.plus1(a);
             }
         });
 
 
-        assert.equal(MicroGears.testService.callPlus1(), 1);
+        assert.equal(MicroGears.testService.callPlus1('1'), '11');
         done();
 
     });
+
+    it("should be a promise function", function (done) {
+
+        MicroGears.addService({
+            name: 'testService',
+            namespace: 'namespace',
+            async: true,
+            plus1: function (a) {
+                assert.equal(a, '1');
+
+                return a + 1;
+            },
+            callPlus1: function (a) {
+                assert.equal(a, '1');
+
+                return this.plus1(a);
+            }
+        });
+
+
+        MicroGears.testService.callPlus1('1')
+            .then(function (a) {
+                assert.equal(a, '11');
+                done();
+            });
+
+    });
+
+
+    it("should run and respect the chain order, but not be a promise", function (done) {
+
+        var plugin1 = {
+            name: 'testPlugin1',
+            beforeChain: function (args, _meta) {
+                assert.ok(_meta.methodName);
+                assert.equal(args[0], '1');
+
+                args[0] = args[0] + "weird";
+
+                return args;
+            },
+            afterChain: function (result, _meta) {
+                assert.ok(_meta.methodName);
+                assert.ok(result[0] >= 1);
+
+                result[0] = +result[0] + 1;
+
+                return result;
+            }
+        };
+
+        var plugin2 = {
+            name: 'testPlugin2',
+            beforeChain: function (args, _meta) {
+                assert.ok(_meta.methodName);
+                assert.equal(args[0], '1weird');
+
+                args[0] = +args[0].replace(/[^\d]+/, '');
+
+                return args;
+            },
+            afterChain: function (result, _meta) {
+                assert.ok(_meta.methodName);
+                assert.ok(result[0] >= 2);
+
+                result[0] = +result[0] + 1;
+
+                return result;
+            }
+        };
+
+        MicroGears.addPlugin(plugin1);
+        MicroGears.addPlugin(plugin2);
+
+        MicroGears.addService({
+            name: 'testService',
+            namespace: 'namespace',
+            async: false,
+            plus1: function (a) {
+                assert.equal(a, 1);
+
+                return a + 1;
+            },
+            callPlus1: function (a) {
+                assert.equal(a, 1);
+
+                return this.plus1(a);
+            }
+        });
+
+
+        assert.equal(MicroGears.testService.callPlus1('1'), 6);
+        done();
+
+    });
+
+
+    it("should run and respect the chain order, but be a promise", function (done) {
+
+        var plugin1 = {
+            name: 'testPlugin1',
+            beforeChain: function (args, _meta) {
+                assert.ok(_meta.methodName);
+                assert.equal(args[0], '1');
+
+                args[0] = args[0] + "weird";
+
+                return args;
+            },
+            afterChain: function (result, _meta) {
+                assert.ok(_meta.methodName);
+                assert.ok(result[0] >= 1);
+
+                result[0] = +result[0] + 1;
+
+                return result;
+            }
+        };
+
+        var plugin2 = {
+            name: 'testPlugin2',
+            beforeChain: function (args, _meta) {
+                assert.ok(_meta.methodName);
+                assert.equal(args[0], '1weird');
+
+                args[0] = +args[0].replace(/[^\d]+/, '');
+
+                return args;
+            },
+            afterChain: function (result, _meta) {
+                assert.ok(_meta.methodName);
+                assert.ok(result[0] >= 2);
+
+                result[0] = +result[0] + 1;
+
+                return result;
+            }
+        };
+
+        MicroGears.addPlugin(plugin1);
+        MicroGears.addPlugin(plugin2);
+
+        MicroGears.addService({
+            name: 'testService',
+            namespace: 'namespace',
+            async: true,
+            plus1: function (a) {
+                assert.equal(a, 1);
+
+                return a + 1;
+            },
+            callPlus1: function (a) {
+                assert.equal(a, 1);
+
+                return this.plus1(a);
+            }
+        });
+
+        MicroGears.testService.callPlus1('1', 4)
+            .then(function (a) {
+                assert.equal(a, 6);
+                done();
+            });
+
+    });
+
+
+    it("should share information between plugins by meta object argument", function (done) {
+        var timeToPerform;
+
+        var service = {
+            name: 'testService',
+            namespace: "namespace",
+            testFunction1: function (arg1) {
+                assert.equal(arg1, 'firstParameter');
+
+            },
+            testFunction2: function (arg1, arg2, arg3) {
+                assert.equal(arg1, 'firstParameter');
+                assert.equal(arg2, 'secondParameter');
+                assert.equal(arg3, 'thirdParameter');
+                assert.equal(arguments.length, 3);
+                return arg1 + arg2 + arg3;
+            }
+        };
+
+        var plugin1 = {
+            name: 'testPlugin',
+            beforeChain: function filter(args) {
+                return args;
+            }
+        };
+
+        var performancePlugin = {
+            name: 'performancePlugin',
+            beforeChain: function (args, _meta) {
+                var hrstart, start, logPerformance = false, serviceName = this.microgears.serviceName, method = this.microgears.methodName;
+
+                logPerformance = (this.microgears.serviceName === 'testService');
+                if (logPerformance) {
+                    hrstart = process.hrtime();
+                    start = new Date();
+                }
+
+                _meta.statistcs = {
+                    hrstart: hrstart,
+                    start: start,
+                    logPerformance: logPerformance
+                };
+
+                return args;
+
+            },
+            afterChain: function (result, _meta) {
+                if (_meta.statistcs.logPerformance) {
+                    _meta.statistcs.end = new Date() - _meta.statistcs.start;
+                    _meta.statistcs.hrend = process.hrtime(_meta.statistcs.hrstart);
+                }
+                timeToPerform = _meta.statistcs;
+
+                return result;
+            }
+        };
+
+        MicroGears.addPlugin(performancePlugin);
+        MicroGears.addPlugin(plugin1);
+
+        MicroGears.addService(service);
+
+
+        MicroGears.testService.testFunction1('firstParameter').finally(function () {
+            assert.ok(timeToPerform.hrend[1]);
+            done();
+        });
+
+    });
+
+
+
+
 
 });

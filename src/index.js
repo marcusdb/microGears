@@ -10,8 +10,8 @@ ServiceController = function ServiceController() {
         _services, _buildPluginAsync, _buildPluginSync;
 
     _addPlugin = function _addPlugin(plugin) { // plugin has to have 4 args chain,service,body, header
-        if (typeof plugin.filter !== 'function') {
-            throw 'plugin must be a function';
+        if (typeof plugin.beforeChain !== 'function' && typeof plugin.afterChain !== 'function') {
+            throw 'plugin must have a function called beforeChain, afterChain or both';
         }
         if (!plugin.name) {
             throw 'plugin name is mandatory';
@@ -19,7 +19,10 @@ ServiceController = function ServiceController() {
         if (!!_plugins[plugin.name]) {
             throw 'plugin ' + plugin.name + ' is already defined';
         }
-        _plugins[plugin.name] = plugin.filter;
+        _plugins[plugin.name] = {
+            beforeChain: plugin.beforeChain,
+            afterChain: plugin.afterChain
+        };
         _pluginChainCache = {};
     };
 
@@ -35,37 +38,55 @@ ServiceController = function ServiceController() {
         var functionName, result;
         functionName = fn.toString().split(')');
         _pluginChainCache[service.name] = _pluginChainCache[service.name] || {};
-        result = _pluginChainCache[service.name][functionName] || _buildPluginChain(service, fn, service.promisify);
+        result = _pluginChainCache[service.name][functionName] || _buildPluginChain(service, fn, service.async);
         _pluginChainCache[service.name][functionName] = result;
         return result;
     };
 
-    _buildPluginChain = function _buildPluginChain(service, fn, promisify) {
-        var previous, currentFn;
-        if(promisify === undefined) promisify = true;
+    _buildPluginChain = function _buildPluginChain(service, fn, async) {
+        var previous, currentFn, beforePlugins, afterPlugins;
+        if(async === undefined) async = true;
 
-        previous = (promisify && _buildPluginAsync || _buildPluginSync).apply(null, arguments);
-
-        Object.keys(_plugins).forEach(function (a) {
-            previous = BlueBirdPromise.method(R.curry(_plugins[a].bind(service))(previous));
-        });
-        currentFn = previous;
         return {
-            process: function (service, args) {
-                return currentFn.apply(service, [args]);
+            process: function (service, args, _meta) {
+
+                beforePlugins = Object.keys(_plugins).map(function(e){ return _plugins[e].beforeChain; });
+                currentFn = (async && _buildPluginAsync || _buildPluginSync).apply(null, [service, fn]);
+                afterPlugins = Object.keys(_plugins).map(function(e){ return _plugins[e].afterChain; });
+
+
+                return R.pipe(
+                    R.flatten,
+                    R.filter(R.compose(R.not, R.either(R.isNil, R.isEmpty))),
+                    (async &&
+                        R.reduce(function(a, b){
+                            return a.then(function(argsForThen){
+                                return b.apply(service, [(Array.isArray(argsForThen) && argsForThen || [argsForThen])].concat(_meta));
+                            });
+                        }, BlueBirdPromise.resolve(args)) ||
+                        R.reduce(function(a, b){
+                            return b.apply(service, [(Array.isArray(a) && a || [a])].concat(_meta));
+                        }, args)
+                    )
+                )([
+                    beforePlugins,
+                    currentFn,
+                    afterPlugins
+                ]);
+
             }
         };
     };
 
     _buildPluginAsync = function _buildPluginAsync(service, fn){
         return BlueBirdPromise.method(function (argsArray) {
-            return fn.apply(service, argsArray);
+            return fn.apply(service, (Array.isArray(argsArray) && argsArray || [argsArray]));
         });
     };
 
     _buildPluginSync = function _buildPluginSync(service, fn){
         return function (argsArray) {
-            return fn.apply(service, argsArray);
+            return fn.apply(service, (Array.isArray(argsArray) && argsArray || [argsArray]) );
         };
     };
 
@@ -76,18 +97,23 @@ ServiceController = function ServiceController() {
     };
 
     _createPromisifyProxy = function _createPromisifyProxy(obj, key) {
-        var promisify = obj.promisify;
+        var async = obj.async;
 
         if (typeof obj[key] === 'function') {
             var func = obj[key];
             obj[key] = function () {
                 var args = Array.prototype.slice.call(arguments);
-                obj.microgears = {
+                var _meta = {
                     serviceName: obj.name,
                     methodName: key,
                     serviceNameSpace: obj.namespace
                 };
-                return (promisify && BlueBirdPromise.method(_buildPluginChainCached(obj, func).process)(obj, args) || _buildPluginChainCached(obj, func).process(obj, args));
+                obj.microgears = {
+                    serviceName: _meta.serviceName,
+                    serviceNameSpace: _meta.serviceNameSpace
+                };
+
+                return (async && BlueBirdPromise.method(_buildPluginChainCached(obj, func).process)(obj, args, _meta) || _buildPluginChainCached(obj, func).process(obj, args, _meta));
             };
         }
 
@@ -107,7 +133,7 @@ ServiceController = function ServiceController() {
         _services = _services || [];
         _services.push(service.name);
 
-        service.promisify = (service.promisify === undefined ? true : service.promisify);
+        service.async = (service.async === undefined ? true : service.async);
         
         createProxy = R.curry(_createPromisifyProxy);
         
