@@ -9,7 +9,7 @@
 [![Code Climate](https://codeclimate.com/github/marcusdb/microGears/badges/gpa.svg)](https://codeclimate.com/github/marcusdb/microGears)
 [![Test Coverage](https://codeclimate.com/github/marcusdb/microGears/badges/coverage.svg)](https://codeclimate.com/github/marcusdb/microGears/coverage)
 [![Issue Count](https://codeclimate.com/github/marcusdb/microGears/badges/issue_count.svg)](https://codeclimate.com/github/marcusdb/microGears)
-[![TypeScript definitions on DefinitelyTyped](//definitelytyped.org/badges/standard.svg)](http://definitelytyped.org)
+[![TypeScript definitions on DefinitelyTyped](//img.shields.io/badge/DefinitelyTyped-.d.ts-blue.svg)](http://definitelytyped.org)
 
 
 
