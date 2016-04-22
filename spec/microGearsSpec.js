@@ -42,7 +42,6 @@ describe("MicroGears ", function () {
 
         });
 
-
         assert.ok(MicroGears.testService.testFunction1, 'testFunction1 on testService exists');
         assert.isFunction(MicroGears.testService.testFunction1, 'testFunction1 on testService is a function');
     });
@@ -582,7 +581,6 @@ describe("MicroGears ", function () {
 
     });
 
-
     it("should have the service meta information available in the plugin context of a prototypal class", function (done) {
         var test2;
 
@@ -699,7 +697,6 @@ describe("MicroGears ", function () {
             }
         });
 
-
         assert.equal(MicroGears.testService.callPlus1('1'), '11');
         done();
 
@@ -723,7 +720,6 @@ describe("MicroGears ", function () {
             }
         });
 
-
         MicroGears.testService.callPlus1('1')
             .then(function (a) {
                 assert.equal(a, '11');
@@ -731,7 +727,6 @@ describe("MicroGears ", function () {
             });
 
     });
-
 
     it("should run and respect the chain order, but not be a promise", function (done) {
 
@@ -746,6 +741,7 @@ describe("MicroGears ", function () {
                 return args;
             },
             afterChain: function (result, _meta) {
+
                 assert.ok(_meta.methodName);
                 assert.ok(result[0] >= 1);
 
@@ -794,12 +790,10 @@ describe("MicroGears ", function () {
             }
         });
 
-
         assert.equal(MicroGears.testService.callPlus1('1'), 6);
         done();
 
     });
-
 
     it("should run and respect the chain order, but be a promise", function (done) {
 
@@ -870,7 +864,6 @@ describe("MicroGears ", function () {
 
     });
 
-
     it("should share information between plugins by meta object argument", function (done) {
         var timeToPerform;
 
@@ -933,7 +926,6 @@ describe("MicroGears ", function () {
 
         MicroGears.addService(service);
 
-
         MicroGears.testService.testFunction1('firstParameter').finally(function () {
             assert.ok(timeToPerform.hrend[1]);
             done();
@@ -941,8 +933,115 @@ describe("MicroGears ", function () {
 
     });
 
+    it("should have the service method result as a parameter to plugin's afterChain method when sync", function (done) {
 
+        var plugin1 = {
+            name: 'testPlugin1',
+            beforeChain: function (args, _meta) {
 
+                return args;
+            },
+            afterChain: function (result, _meta) {
 
+                assert.ok(typeof result === "number");
+
+                return result;
+            }
+        };
+
+        MicroGears.addPlugin(plugin1);
+
+        MicroGears.addService({
+            name: 'testService',
+            namespace: 'namespace',
+            async: false,
+            plus1: function (a) {
+
+                return a + 1;
+            },
+            callPlus1: function (a) {
+
+                return this.plus1(a);
+            }
+        });
+
+        MicroGears.testService.callPlus1(1);
+        done();
+
+    });
+
+    it("should have the service method result as a parameter to plugin's afterChain method when async", function (done) {
+
+        var plugin1 = {
+            name: 'testPlugin1',
+            beforeChain: function (args, _meta) {
+
+                return args;
+            },
+            afterChain: function (result, _meta) {
+
+                assert.ok(typeof result === "number");
+
+                return result;
+            }
+        };
+
+        MicroGears.addPlugin(plugin1);
+
+        MicroGears.addService({
+            name: 'testService',
+            namespace: 'namespace',
+            async: true,
+            plus1: function (a) {
+
+                return a + 1;
+            },
+            callPlus1: function (a) {
+
+                return this.plus1(a);
+            }
+        });
+
+        MicroGears.testService.callPlus1(1).then(function (result) {
+            assert.ok(result === 2);
+            done();
+        });
+
+    });
+
+    it.only("should work without messing up with the parameters", function (done) {
+
+        var plugin1 = {
+            name: 'testPlugin1',
+            beforeChain: function (args, _meta) {
+
+                return args;
+            },
+            afterChain: function (result, _meta) {
+
+                assert.ok(typeof result === "object");
+
+                return result;
+            }
+        };
+
+        MicroGears.addPlugin(plugin1);
+
+        MicroGears.addService({
+            name: 'testService',
+            namespace: 'namespace',
+            async: true,
+            callPlus1: function (a, b) {
+
+                return [a[0] + 1, a[1] + 1, b[0] + 1, b[1] + 1];
+            }
+        });
+
+        MicroGears.testService.callPlus1([1, 2, 3, 4], [1, 2, 3, 4]).then(function (result) {
+            assert.ok(result[3] === 3 && result[0] === 2);
+            done();
+        });
+
+    });
 
 });

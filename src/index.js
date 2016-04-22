@@ -45,48 +45,63 @@ ServiceController = function ServiceController() {
 
     _buildPluginChain = function _buildPluginChain(service, fn, async) {
         var previous, currentFn, beforePlugins, afterPlugins;
-        if(async === undefined) async = true;
+        if (async === undefined) async = true;
 
         return {
             process: function (service, args, _meta) {
 
-                beforePlugins = Object.keys(_plugins).map(function(e){ return _plugins[e].beforeChain; });
+                beforePlugins = Object.keys(_plugins).map(function (e) {
+                    return _plugins[e].beforeChain;
+                });
                 currentFn = (async && _buildPluginAsync || _buildPluginSync).apply(null, [service, fn]);
-                afterPlugins = Object.keys(_plugins).map(function(e){ return _plugins[e].afterChain; });
+                afterPlugins = Object.keys(_plugins).map(function (e) {
+                    return _plugins[e].afterChain;
+                });
 
+                var afterPluginPipe = async &&
+                    R.reduce(function (a, b) {
+                        return a.then(function (argsForThen) {
+
+                            return b.apply(service, [argsForThen].concat(_meta));
+                        });
+                    }, R.__, afterPlugins) || R.reduce(function (a, b) {
+
+                        return b.apply(service, [a].concat(_meta));
+                    }, R.__, afterPlugins);
 
                 return R.pipe(
                     R.flatten,
                     R.filter(R.compose(R.not, R.either(R.isNil, R.isEmpty))),
                     (async &&
-                        R.reduce(function(a, b){
-                            return a.then(function(argsForThen){
+                        R.reduce(function (a, b) {
+                            return a.then(function (argsForThen) {
                                 return b.apply(service, [(Array.isArray(argsForThen) && argsForThen || [argsForThen])].concat(_meta));
                             });
                         }, BlueBirdPromise.resolve(args)) ||
-                        R.reduce(function(a, b){
+                        R.reduce(function (a, b) {
+                            console.log('before');
                             return b.apply(service, [(Array.isArray(a) && a || [a])].concat(_meta));
                         }, args)
-                    )
+                    ),
+                    afterPluginPipe
                 )([
                     beforePlugins,
-                    currentFn,
-                    afterPlugins
+                    currentFn
                 ]);
 
             }
         };
     };
 
-    _buildPluginAsync = function _buildPluginAsync(service, fn){
+    _buildPluginAsync = function _buildPluginAsync(service, fn) {
         return BlueBirdPromise.method(function (argsArray) {
             return fn.apply(service, (Array.isArray(argsArray) && argsArray || [argsArray]));
         });
     };
 
-    _buildPluginSync = function _buildPluginSync(service, fn){
+    _buildPluginSync = function _buildPluginSync(service, fn) {
         return function (argsArray) {
-            return fn.apply(service, (Array.isArray(argsArray) && argsArray || [argsArray]) );
+            return fn.apply(service, (Array.isArray(argsArray) && argsArray || [argsArray]));
         };
     };
 
@@ -122,7 +137,7 @@ ServiceController = function ServiceController() {
     _addService = function _addService(service) {
 
         var createProxy;
-        
+
         if (!service.name) {
             throw 'service name is mandatory';
         }
@@ -134,9 +149,9 @@ ServiceController = function ServiceController() {
         _services.push(service.name);
 
         service.async = (service.async === undefined ? true : service.async);
-        
+
         createProxy = R.curry(_createPromisifyProxy);
-        
+
         R.pipe(
             R.flatten,
             R.uniq,
@@ -145,10 +160,10 @@ ServiceController = function ServiceController() {
         )([
             Object.getOwnPropertyNames(Object.getPrototypeOf(service)),
             Object.keys(service)
-        ]);  
-            
+        ]);
+
         _servicePubFunctions[service.name] = service;
-	    return service;
+        return service;
     };
 
     _resetMicroGears = function () {
