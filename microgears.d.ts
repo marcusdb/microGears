@@ -5,27 +5,28 @@
 
 declare namespace microgears {
     export interface Service {
-        name: string;
-        async?: boolean;
-        pathname?: string;
-        namespace: string;
+        name:string;
+        async?:boolean;
+        pathname?:string;
+        namespace:string;
     }
 
     interface MetaInformation {
-        serviceName: string;
-        methodName: string;
-        serviceNameSpace: string;
-        extra: any;
+        serviceName:string;
+        methodName:string;
+        serviceNameSpace:string;
+        extra:any;
     }
 
     interface Plugin {
-        name: string;
-        beforeChain(arguments: Array<any>, metaInfo: MetaInformation): Array<any>;
-        afterChain<T>(result: T, metaInfo: MetaInformation): T;
+        name:string;
+        beforeChain<M extends MetaInformation>(arguments:Array<any>, metaInfo:M):Array<any>;
+        afterChain<T,M extends MetaInformation>(result:T, metaInfo:M):T;
     }
 
-    function addService(service: Service): Service;
-    function addPlugin(plugin: Plugin): void;
+    function addService<T extends Service>(service:T):T;
+
+    function addPlugin<T extends Plugin>(plugin:T):void;
 }
 
 declare module "microgears" {
