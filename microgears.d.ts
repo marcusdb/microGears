@@ -11,22 +11,22 @@ declare namespace microgears {
         namespace:string;
     }
 
-    interface MetaInformation {
+    export interface MetaInformation {
         serviceName:string;
         methodName:string;
         serviceNameSpace:string;
         extra:any;
     }
 
-    interface Plugin {
+    export interface Plugin {
         name:string;
         beforeChain<M extends MetaInformation>(arguments:Array<any>, metaInfo:M):Array<any>;
         afterChain<T,M extends MetaInformation>(result:T, metaInfo:M):T;
     }
 
-    function addService<T extends Service>(service:T):T;
+    export function addService<T extends Service>(service:T):T;
 
-    function addPlugin<T extends Plugin>(plugin:T):void;
+    export function addPlugin<T extends Plugin>(plugin:T):void;
 }
 
 declare module "microgears" {
