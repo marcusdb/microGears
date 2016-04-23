@@ -1009,7 +1009,7 @@ describe("MicroGears ", function () {
 
     });
 
-    it.only("should work without messing up with the parameters", function (done) {
+    it("should work without messing up with the parameters", function (done) {
 
         var plugin1 = {
             name: 'testPlugin1',
