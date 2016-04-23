@@ -734,18 +734,18 @@ describe("MicroGears ", function () {
             name: 'testPlugin1',
             beforeChain: function (args, _meta) {
                 assert.ok(_meta.methodName);
-                assert.equal(args[0], '1');
+                assert.equal(args[0], 'wtf');
 
-                args[0] = args[0] + "weird";
+                args[0] = args[0] + " weird";
 
                 return args;
             },
             afterChain: function (result, _meta) {
 
-                assert.ok(_meta.methodName);
-                assert.ok(result[0] >= 1);
+                assert.ok(_meta.methodName === 'callPlus1');
+                assert.ok(result === 'wtf weird stuff happens a lot');
 
-                result[0] = +result[0] + 1;
+                result = result + ' these days';
 
                 return result;
             }
@@ -755,17 +755,18 @@ describe("MicroGears ", function () {
             name: 'testPlugin2',
             beforeChain: function (args, _meta) {
                 assert.ok(_meta.methodName);
-                assert.equal(args[0], '1weird');
+                assert.equal(args[0], 'wtf weird');
 
-                args[0] = +args[0].replace(/[^\d]+/, '');
+                args[0] = args[0] + " stuff";
 
                 return args;
             },
             afterChain: function (result, _meta) {
-                assert.ok(_meta.methodName);
-                assert.ok(result[0] >= 2);
 
-                result[0] = +result[0] + 1;
+                assert.ok(_meta.methodName);
+                assert.ok(result === 'wtf weird stuff happens');
+
+                result = result + ' a lot';
 
                 return result;
             }
@@ -778,19 +779,13 @@ describe("MicroGears ", function () {
             name: 'testService',
             namespace: 'namespace',
             async: false,
-            plus1: function (a) {
-                assert.equal(a, 1);
-
-                return a + 1;
-            },
             callPlus1: function (a) {
-                assert.equal(a, 1);
+                assert.equal(a, 'wtf weird stuff');
 
-                return this.plus1(a);
+                return a + ' happens';
             }
         });
-
-        assert.equal(MicroGears.testService.callPlus1('1'), 6);
+        assert.equal(MicroGears.testService.callPlus1('wtf'), 'wtf weird stuff happens a lot these days');
         done();
 
     });
@@ -801,17 +796,18 @@ describe("MicroGears ", function () {
             name: 'testPlugin1',
             beforeChain: function (args, _meta) {
                 assert.ok(_meta.methodName);
-                assert.equal(args[0], '1');
+                assert.equal(args[0], 'wtf');
 
-                args[0] = args[0] + "weird";
+                args[0] = args[0] + " weird";
 
                 return args;
             },
             afterChain: function (result, _meta) {
-                assert.ok(_meta.methodName);
-                assert.ok(result[0] >= 1);
 
-                result[0] = +result[0] + 1;
+                assert.ok(_meta.methodName === 'callPlus1');
+                assert.ok(result === 'wtf weird stuff happens a lot');
+
+                result = result + ' these days';
 
                 return result;
             }
@@ -821,17 +817,17 @@ describe("MicroGears ", function () {
             name: 'testPlugin2',
             beforeChain: function (args, _meta) {
                 assert.ok(_meta.methodName);
-                assert.equal(args[0], '1weird');
+                assert.equal(args[0], 'wtf weird');
 
-                args[0] = +args[0].replace(/[^\d]+/, '');
+                args[0] = args[0] + " stuff";
 
                 return args;
             },
             afterChain: function (result, _meta) {
                 assert.ok(_meta.methodName);
-                assert.ok(result[0] >= 2);
+                assert.ok(result === 'wtf weird stuff happens');
 
-                result[0] = +result[0] + 1;
+                result = result + ' a lot';
 
                 return result;
             }
@@ -844,21 +840,16 @@ describe("MicroGears ", function () {
             name: 'testService',
             namespace: 'namespace',
             async: true,
-            plus1: function (a) {
-                assert.equal(a, 1);
-
-                return a + 1;
-            },
             callPlus1: function (a) {
-                assert.equal(a, 1);
+                assert.equal(a, 'wtf weird stuff');
 
-                return this.plus1(a);
+                return a + ' happens';
             }
         });
 
-        MicroGears.testService.callPlus1('1', 4)
+        MicroGears.testService.callPlus1('wtf')
             .then(function (a) {
-                assert.equal(a, 6);
+                assert.equal(a, 'wtf weird stuff happens a lot these days');
                 done();
             });
 

@@ -54,14 +54,13 @@ ServiceController = function ServiceController() {
                     return _plugins[e].beforeChain;
                 });
                 currentFn = (async && _buildPluginAsync || _buildPluginSync).apply(null, [service, fn]);
-                afterPlugins = Object.keys(_plugins).map(function (e) {
+                afterPlugins = R.reverse(R.filter(R.compose(R.not, R.either(R.isNil, R.isEmpty)), Object.keys(_plugins).map(function (e) {
                     return _plugins[e].afterChain;
-                });
+                })));
 
                 var afterPluginPipe = async &&
                     R.reduce(function (a, b) {
                         return a.then(function (argsForThen) {
-
                             return b.apply(service, [argsForThen].concat(_meta));
                         });
                     }, R.__, afterPlugins) || R.reduce(function (a, b) {
@@ -79,7 +78,6 @@ ServiceController = function ServiceController() {
                             });
                         }, BlueBirdPromise.resolve(args)) ||
                         R.reduce(function (a, b) {
-                            console.log('before');
                             return b.apply(service, [(Array.isArray(a) && a || [a])].concat(_meta));
                         }, args)
                     ),
