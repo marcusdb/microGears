@@ -1,6 +1,6 @@
 {
   "name": "microgears",
-  "version": "4.0.4",
+  "version": "4.0.5",
   "description": "super lightweight micro framework for reactive services",
   "main": "./src/index.js",
   "scripts": {
@@ -26,5 +26,6 @@
     "istanbul": "^0.4.1",
     "mocha": "2.4.5",
     "sinon": "1.17.2"
-  }
+  },
+  "typings": "./microgears.d.ts"
 }
