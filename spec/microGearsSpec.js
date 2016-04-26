@@ -1034,5 +1034,40 @@ describe("MicroGears ", function () {
         });
 
     });
+    
+    it("when async false and function return a promise, execute afterChain when promise is done", function (done) {
+
+        var plugin1 = {
+            name: 'testPlugin1',
+            beforeChain: function (args, _meta) {
+
+                return args;
+            },
+            afterChain: function (result, _meta) {
+
+                assert.equal(result, 45);
+
+                return result;
+            }
+        };
+
+        MicroGears.addPlugin(plugin1);
+
+        MicroGears.addService({
+            name: 'testService',
+            namespace: 'namespace',
+            async: false,
+            callPlus1: function () {
+
+                return BlueBirdPromise.resolve(45);
+            }
+        });
+
+        MicroGears.testService.callPlus1().then(function (result) {
+            assert.equal(45, result);
+            done();
+        });
+
+    });
 
 });

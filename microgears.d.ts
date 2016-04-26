@@ -17,7 +17,7 @@ export interface MetaInformation {
 
 export interface Plugin {
   name:string;
-  beforeChain < M extends MetaInformation > (arguments:Array < any >, metaInfo:M):Array < any > ;
+  beforeChain < M extends MetaInformation > (args:Array < any >, metaInfo:M):Array < any > ;
   afterChain < T, M extends MetaInformation > (result:T, metaInfo:M):T;
 }
 
