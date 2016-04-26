@@ -57,15 +57,18 @@ ServiceController = function ServiceController() {
                 afterPlugins = R.reverse(R.filter(R.compose(R.not, R.either(R.isNil, R.isEmpty)), Object.keys(_plugins).map(function (e) {
                     return _plugins[e].afterChain;
                 })));
+                
+                function reduceChain(b) {
+                    return function (argsForThen) {
+                        return b.apply(service, [argsForThen].concat(_meta));
+                    };
+                }
 
                 var afterPluginPipe = async &&
                     R.reduce(function (a, b) {
-                        return a.then(function (argsForThen) {
-                            return b.apply(service, [argsForThen].concat(_meta));
-                        });
+                        return a.then(reduceChain(b));
                     }, R.__, afterPlugins) || R.reduce(function (a, b) {
-
-                        return b.apply(service, [a].concat(_meta));
+                        return a.then ? a.then(reduceChain(b)) : reduceChain(b)(a);                        
                     }, R.__, afterPlugins);
 
                 return R.pipe(
