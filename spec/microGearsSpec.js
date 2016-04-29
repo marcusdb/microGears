@@ -1099,6 +1099,6 @@ describe("MicroGears ", function () {
         var result = MicroGears.testService._callPlus1(1);
         assert.equal(1, result);
         done();
-    })
+    });
 
 });
