@@ -9,6 +9,7 @@
 [![Code Climate](https://codeclimate.com/github/marcusdb/microGears/badges/gpa.svg)](https://codeclimate.com/github/marcusdb/microGears)
 [![Test Coverage](https://codeclimate.com/github/marcusdb/microGears/badges/coverage.svg)](https://codeclimate.com/github/marcusdb/microGears/coverage)
 [![Issue Count](https://codeclimate.com/github/marcusdb/microGears/badges/issue_count.svg)](https://codeclimate.com/github/marcusdb/microGears)
+[![TypeScript definitions on DefinitelyTyped](https://img.shields.io/badge/DefinitelyTyped-.d.ts-blue.svg)](http://definitelytyped.org)
 
 
 
@@ -29,7 +30,7 @@ MicroGears was build with 3 main objectives in mind.
 The **name** and **namespace** are mandatory fields for the service, the reason is that later you are going to be able to appy the plugins to only certain services or namespaces (ie services.company.persistance or routes.company, etc..).
 Needless to say services must be registered before use.
 
-VERY IMPORTANT--->ALL service calls are promisify by microGears for you, so they are **ALWAYS** asynchronous, except when the **promosify** property is set to false, this property is optional and your **default value is true**
+VERY IMPORTANT--->ALL service calls are promisify by microGears for you, so they are **ALWAYS** asynchronous, except when the **async** property is set to false, this property is optional and your **default value is true**
 
 ```javascript
 var MicroGears = require('microgears');
