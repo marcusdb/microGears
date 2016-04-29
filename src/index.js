@@ -63,7 +63,7 @@ ServiceController = function ServiceController() {
                 });
 
                 var afterPluginPipe = R.reduce(function (a, b) {
-                    return (async || a.then) ? a.then(reduceChain(b)) : reduceChain(b, a);                        
+                    return (async || (a || {}).then) ? a.then(reduceChain(b)) : reduceChain(b, a);
                 }, R.__, afterPlugins);
 
                 return R.pipe(
@@ -151,7 +151,7 @@ ServiceController = function ServiceController() {
         R.pipe(
             R.flatten,
             R.uniq,
-            R.filter(R.compose(R.not, R.equals('constructor'))),
+            R.filter(R.compose(R.not, R.either(R.equals('constructor'), R.compose(R.equals('_'), R.head)))),
             R.forEach(createProxy(service))
         )([
             Object.getOwnPropertyNames(Object.getPrototypeOf(service)),

@@ -107,30 +107,6 @@ MicroGears.addPlugin(tracePlugin);
 ### A performance meter plugin (that only measures performance for the *userService* service
 
 ```javascript
-var MicroGears = require('microgears');
-
-var performancePlugin = {
-    name: 'performancePlugin',
-    filter: function (next, args) {
-        var hrstart, end, hrend, start, logPerformance = false,serviceName=this.microgears.serviceName,method=this.microgears.methodName;
-        logPerformance = (serviceName === 'userService');
-        if (logPerformance) {
-            hrstart = process.hrtime();
-            start = new Date();
-            
-        }
-        return next(args).finally(function () {
-            if (logPerformance) {
-                end = new Date() - start;
-                hrend = process.hrtime(hrstart);
-                
-                console.log('Service:' + serviceName+ ' Method:' + method + "Execution time: %dms", end);
-                console.log('Service:' + serviceName+ ' Method:' + method + "Execution time (hr): %ds %dms", hrend[0], hrend[1] / 1000000);
-            }
-        });
-
-    }
-};
 
 var performancePlugin = {
     name: 'performancePlugin',
@@ -167,3 +143,37 @@ var performancePlugin = {
 
 MicroGears.addPlugin(performancePlugin);
 ```
+
+### Omitting methods
+
+ Sometimes we not need to intercept a method, a private method perhaps. Private methods doesn't
+ exists in Javascript , by convention, instance members starting with _ "underscore", are private,
+ the Microgears use this convention to not intercept methods with this notation.
+
+ ```javascript
+ var plugin1 = {
+     name: 'testPlugin1',
+     beforeChain: function (args, _meta) {
+
+         return args[0] + 1;
+     },
+     afterChain: function (result, _meta) {
+
+         return result + 1;
+     }
+ };
+
+ MicroGears.addPlugin(plugin1);
+
+ MicroGears.addService({
+     name: 'testService',
+     namespace: 'namespace',
+     async: false,
+     _callPlus1: function (val) {
+
+         return val;
+     }
+ });
+
+ var result = MicroGears.testService._callPlus1(1); // 1;
+ ```
