@@ -1102,7 +1102,7 @@ describe("MicroGears ", function () {
     });
 
 
-    it('teste', function(done){
+    it('should not throw an error if async false service returns a undefined value', function(done){
         var plugin1 = {
             name: 'testPlugin1',
             afterChain: function (result, _meta) {
@@ -1128,7 +1128,7 @@ describe("MicroGears ", function () {
     });
 
 
-    it('teste2', function(done){
+    it('should return the same value', function(done){
         var plugin1 = {
             name: 'testPlugin1',
             afterChain: function (result, _meta) {
