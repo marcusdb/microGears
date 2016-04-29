@@ -63,7 +63,7 @@ ServiceController = function ServiceController() {
                 });
 
                 var afterPluginPipe = R.reduce(function (a, b) {
-                    return (async || a.then) ? a.then(reduceChain(b)) : reduceChain(b, a);                        
+                    return (async || (a || {}).then) ? a.then(reduceChain(b)) : reduceChain(b, a);
                 }, R.__, afterPlugins);
 
                 return R.pipe(

@@ -1101,4 +1101,56 @@ describe("MicroGears ", function () {
         done();
     });
 
+
+    it('teste', function(done){
+        var plugin1 = {
+            name: 'testPlugin1',
+            afterChain: function (result, _meta) {
+                assert.isUndefined(result);
+                return result;
+            }
+        };
+
+        MicroGears.addPlugin(plugin1);
+
+        MicroGears.addService({
+            name: 'testService',
+            namespace: 'namespace',
+            async: false,
+            callPlus1: function (val) {
+                return;
+            }
+        });
+
+        var result = MicroGears.testService.callPlus1(1);
+        assert.equal(undefined, result);
+        done();
+    });
+
+
+    it('teste2', function(done){
+        var plugin1 = {
+            name: 'testPlugin1',
+            afterChain: function (result, _meta) {
+                assert.equal(result, 1);
+                return result;
+            }
+        };
+
+        MicroGears.addPlugin(plugin1);
+
+        MicroGears.addService({
+            name: 'testService',
+            namespace: 'namespace',
+            async: false,
+            callPlus1: function (val) {
+                return val;
+            }
+        });
+
+        var result = MicroGears.testService.callPlus1(1);
+        assert.equal(1, result);
+        done();
+    });
+
 });
