@@ -13,6 +13,7 @@ export interface MetaInformation {
   methodName:string;
   serviceNameSpace:string;
   extra:any;
+  error?: Error;
 }
 
 export interface Plugin {
