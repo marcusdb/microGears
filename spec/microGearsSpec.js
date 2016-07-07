@@ -1099,6 +1099,87 @@ describe("MicroGears ", function () {
         var result = MicroGears.testService._callPlus1(1);
         assert.equal(1, result);
         done();
-    })
+    });
+
+    it("should continue the chain if method throw a exception", function (done) {
+        var test2;
+        var spy, spy2;
+        var service = {
+            name: 'testService',
+            namespace: "namespace",
+            testFunction1: function (arg1) {
+                assert.equal(arg1, 'firstParameter');
+                throw new Error('ERROR');
+
+            },
+            testFunction2: function (arg1, arg2, arg3) {
+                assert.equal(arg1, 'firstParameter');
+                assert.equal(arg2, 'secondParameter');
+                assert.equal(arg3, 'thirdParameter');
+                assert.equal(arguments.length, 3);
+                return arg1 + arg2 + arg3;
+            }
+        };
+
+        var plugin1 = {
+            name: 'testPlugin',
+            beforeChain: function filter(args) {
+                return args;
+            },
+            afterChain: function (result, _meta) {
+                assert.instanceOf(_meta.error, Error);
+                assert.isNull(result);
+
+                return result;
+            }
+        };
+
+        var performancePlugin = {
+            name: 'performancePlugin',
+            beforeChain: function (args, _meta) {
+                var hrstart, start, logPerformance = false, serviceName = this.microgears.serviceName, method = this.microgears.methodName;
+
+                logPerformance = (this.microgears.serviceName === 'testService');
+                if (logPerformance) {
+                    hrstart = process.hrtime();
+                    start = new Date();
+                }
+
+                _meta.statistcs = {
+                    hrstart: hrstart,
+                    start: start,
+                    logPerformance: logPerformance
+                };
+
+                return args;
+
+            },
+            afterChain: function (result, _meta) {
+                assert.instanceOf(_meta.error, Error);
+                assert.isNull(result);
+
+                return result;
+            }
+        };
+
+        plugin1.afterChain = spy = sinon.spy(plugin1.afterChain);
+        performancePlugin.afterChain = spy2 = sinon.spy(performancePlugin.afterChain);
+
+        MicroGears.addPlugin(performancePlugin);
+        MicroGears.addPlugin(plugin1);
+
+        MicroGears.addService(service);
+
+        test2 = function (result) {
+            assert.ok(spy.calledOnce);
+            assert.ok(spy2.calledOnce);
+
+            assert.instanceOf(result, Error);
+            done();
+        };
+
+        MicroGears.testService.testFunction1('firstParameter').catch(test2);
+
+    });
 
 });
