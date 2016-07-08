@@ -1034,7 +1034,7 @@ describe("MicroGears ", function () {
         });
 
     });
-    
+
     it("when async false and function return a promise, execute afterChain when promise is done", function (done) {
 
         var plugin1 = {
@@ -1071,7 +1071,7 @@ describe("MicroGears ", function () {
     });
 
 
-    it('should not intercept convention private methods (start with underscore "_")', function(done){
+    it('should not intercept convention private methods (start with underscore "_")', function (done) {
         var plugin1 = {
             name: 'testPlugin1',
             beforeChain: function (args, _meta) {
