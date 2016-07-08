@@ -89,6 +89,9 @@ describe("MicroGears ", function () {
             namespace: "namespace",
             testFunction1: function () {
                 return true;
+            },
+            testFunction2: function (arg1, arg2) {
+                return arg1 + arg2;
             }
 
         });
@@ -1038,6 +1041,58 @@ describe("MicroGears ", function () {
         });
 
         var result = MicroGears.testService._callPlus1(1);
+        assert.equal(1, result);
+        done();
+    });
+
+
+    it('should not throw an error if async false service returns a undefined value', function(done){
+        var plugin1 = {
+            name: 'testPlugin1',
+            afterChain: function (result, _meta) {
+                assert.isUndefined(result);
+                return result;
+            }
+        };
+
+        MicroGears.addPlugin(plugin1);
+
+        MicroGears.addService({
+            name: 'testService',
+            namespace: 'namespace',
+            async: false,
+            callPlus1: function (val) {
+                return;
+            }
+        });
+
+        var result = MicroGears.testService.callPlus1(1);
+        assert.equal(undefined, result);
+        done();
+    });
+
+
+    it('should return the same value', function(done){
+        var plugin1 = {
+            name: 'testPlugin1',
+            afterChain: function (result, _meta) {
+                assert.equal(result, 1);
+                return result;
+            }
+        };
+
+        MicroGears.addPlugin(plugin1);
+
+        MicroGears.addService({
+            name: 'testService',
+            namespace: 'namespace',
+            async: false,
+            callPlus1: function (val) {
+                return val;
+            }
+        });
+
+        var result = MicroGears.testService.callPlus1(1);
         assert.equal(1, result);
         done();
     });
