@@ -44,7 +44,7 @@ ServiceController = function ServiceController() {
     };
 
     _buildPluginChain = function _buildPluginChain(service, fn, async) {
-        var previous, currentFn, beforePlugins, afterPlugins;
+        var previous, currentFn, beforePlugins, afterPlugins, errorCatched;
         if (async === undefined) async = true;
 
         return {
@@ -57,7 +57,7 @@ ServiceController = function ServiceController() {
                 afterPlugins = R.reverse(R.filter(R.compose(R.not, R.either(R.isNil, R.isEmpty)), Object.keys(_plugins).map(function (e) {
                     return _plugins[e].afterChain;
                 })));
-                
+
                 var reduceChain = R.curry(function reduceChain(b, a) {
                     return b.apply(service, [a].concat(_meta));
                 });
@@ -70,16 +70,44 @@ ServiceController = function ServiceController() {
                     R.flatten,
                     R.filter(R.compose(R.not, R.either(R.isNil, R.isEmpty))),
                     (async &&
-                        R.reduce(function (a, b) {
-                            return a.then(function (argsForThen) {
-                                return b.apply(service, [(Array.isArray(argsForThen) && argsForThen || [argsForThen])].concat(_meta));
+                        (function (ar) {
+                            return R.reduce(function (a, b) {
+                                return a.then(function (argsForThen) {
+                                    return b.apply(service, [(Array.isArray(argsForThen) && argsForThen || [argsForThen])].concat(_meta));
+                                });
+                            }, BlueBirdPromise.resolve(args), ar).catch(function (err) {
+                                errorCatched = _meta.error = err;
+                                return null;
                             });
-                        }, BlueBirdPromise.resolve(args)) ||
-                        R.reduce(function (a, b) {
-                            return b.apply(service, [(Array.isArray(a) && a || [a])].concat(_meta));
-                        }, args)
+                        }) ||
+                        (function (ar) {
+                            try {
+                                return R.reduce(function (a, b) {
+                                    return b.apply(service, [(Array.isArray(a) && a || [a])].concat(_meta));
+                                }, args, ar);
+                            } catch (err) {
+                                errorCatched = _meta.error = err;
+                                return null;
+                            }
+                        })
                     ),
-                    afterPluginPipe
+                    afterPluginPipe,
+                    function (a) {
+                        return (async &&
+                            a.then(function (arr) {
+                                if (errorCatched) {
+                                    throw errorCatched;
+                                }
+                                return arr;
+                            }) ||
+                            (function () {
+                                if (errorCatched) {
+                                    throw errorCatched;
+                                }
+                                return a;
+                            })()
+                        );
+                    }
                 )([
                     beforePlugins,
                     currentFn
@@ -117,7 +145,8 @@ ServiceController = function ServiceController() {
                 var _meta = {
                     serviceName: obj.name,
                     methodName: key,
-                    serviceNameSpace: obj.namespace
+                    serviceNameSpace: obj.namespace,
+                    error: undefined,
                 };
                 obj.microgears = {
                     serviceName: _meta.serviceName,
