@@ -44,11 +44,12 @@ ServiceController = function ServiceController() {
     };
 
     _buildPluginChain = function _buildPluginChain(service, fn, async) {
-        var previous, currentFn, beforePlugins, afterPlugins, errorCatched;
+        var previous, currentFn, beforePlugins, afterPlugins;
         if (async === undefined) async = true;
 
         return {
             process: function (service, args, _meta) {
+                var errorCatched;
 
                 beforePlugins = Object.keys(_plugins).map(function (e) {
                     return _plugins[e].beforeChain;
